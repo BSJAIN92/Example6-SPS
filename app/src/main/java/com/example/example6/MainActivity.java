@@ -34,7 +34,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -68,6 +70,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private List<ArrayList<Integer>> Particles;
 
+    private Set<Integer> collidedParticles;
+
+     private  int radiusParticles = 5;
+
+
+
     private List<ShapeDrawable> walls;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +106,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 
         walls = new ArrayList<>();
+
+        this.collidedParticles = new HashSet<Integer>();
         /*
         ShapeDrawable d = new ShapeDrawable(new RectShape());
         d.setBounds(width/2-200, height/2-90, width/2+200, height/2-80);
@@ -244,8 +254,10 @@ public class MainActivity extends Activity implements OnClickListener {
         // create a canvas
         ImageView canvasView = (ImageView) findViewById(R.id.canvas);
         Bitmap blankBitmap = Bitmap.createBitmap(width,height, Bitmap.Config.ARGB_8888);
+
         canvas = new Canvas(blankBitmap);
-        canvas.scale(scale,scale);
+
+        this.canvas.scale(scale,scale);
         canvasView.setImageBitmap(blankBitmap);
 
         // draw the objects
@@ -260,12 +272,14 @@ public class MainActivity extends Activity implements OnClickListener {
 
         this.drawParticles(canvas);
 
-
+        left.setEnabled(false);
+        right.setEnabled(false);
+        down.setEnabled(false);
 
     }
 
     private void drawParticles(Canvas canvas) {
-        int radiusParticles = 5;
+
 
         for(int i = 0; i < this.Particles.size(); i++) {
             int x = this.Particles.get(i).get(0);
@@ -273,7 +287,7 @@ public class MainActivity extends Activity implements OnClickListener {
             // create a drawable object
             drawable = new ShapeDrawable(new OvalShape());
             drawable.getPaint().setColor(Color.BLUE);
-            drawable.setBounds(x - radiusParticles, y - radiusParticles, x + radiusParticles, y + radiusParticles);
+            drawable.setBounds(x - this.radiusParticles, y - this.radiusParticles, x + this.radiusParticles, y + this.radiusParticles);
             drawable.draw(canvas);
         }
 
@@ -287,7 +301,7 @@ public class MainActivity extends Activity implements OnClickListener {
         int boundary = 10;
 
         for (int room = 0; room < this.RoomParticles.size(); room++){
-            for (int particles = 1; particles<= this.RoomParticles.get(room).get(1); particles++){
+            for (int particles = 0; particles < this.RoomParticles.get(room).get(1); particles++){
 
                 int x1, x2, y1, y2, Px, Py;
                 x1 = this.RoomParticles.get(room).get(2) + boundary;
@@ -302,7 +316,7 @@ public class MainActivity extends Activity implements OnClickListener {
             }
 
             if (this.RoomParticles.get(room).size() == 11) {
-                for (int particles = 1; particles <= this.RoomParticles.get(room).get(6); particles++) {
+                for (int particles = 0; particles < this.RoomParticles.get(room).get(6); particles++) {
                     int x1, x2, y1, y2, Px, Py;
                     x1 = this.RoomParticles.get(room).get(7) + boundary;
                     y1 = this.RoomParticles.get(room).get(8) + boundary;
@@ -333,7 +347,7 @@ public class MainActivity extends Activity implements OnClickListener {
         this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(7,11,1260,920,1600,1440)));
         this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(8,2,1820,850,2170,920,7,1830,920,2170,1230)));
 
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(9,6,2170,850,2600,1080)));
+        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(9,7,2170,850,2600,1080)));
         this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(10,8,1820,500,2170,850)));
         this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(11,3,1820,130,1950,500)));
         this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(12,5,1380,0,1950,130)));
@@ -341,10 +355,90 @@ public class MainActivity extends Activity implements OnClickListener {
         this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(14,8,580,0,1010,270)));
         this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(15,5,0,0,580,130,2,440,130,580,320)));
 
-
-
-
     }
+
+    private void updateParticles(double distance, double direction) {
+
+        int movementSize = 3;
+
+        for (int p = 0; p < this.Particles.size(); p++){
+
+            double changeX = new Double(distance * Math.sin(direction));
+            double changeY = new Double(distance * Math.cos(direction));
+
+            //int iterationsX = (int) changeX/movementSize;
+            //int iterationsY = (int) changeY/movementSize;
+            //int iterations = Math.max(iterationsX, iterationsY);
+
+
+            while (changeX != 0 && changeY != 0) {
+
+                if (changeX >= 3) {
+                    int newX = this.Particles.get(p).get(0) + movementSize;
+                    this.Particles.get(p).set(0, newX);
+                    changeX = changeX - movementSize;
+                } else {
+                    int newX = this.Particles.get(p).get(0) + (int) changeX;
+                    this.Particles.get(p).set(0, newX);
+                    changeX = 0;
+                }
+
+                if (changeY >= 3) {
+                    int newY = this.Particles.get(p).get(0) + movementSize;
+                    this.Particles.get(p).set(0, newY);
+                    changeY = changeY - movementSize;
+                } else {
+                    int newY = this.Particles.get(p).get(0) + (int) changeY;
+                    this.Particles.get(p).set(0, newY);
+                    changeY = 0;
+                }
+
+                drawable = new ShapeDrawable(new OvalShape());
+
+                drawable.setBounds(this.Particles.get(p).get(0) - this.radiusParticles,
+                        this.Particles.get(p).get(1) - radiusParticles,
+                        this.Particles.get(p).get(0) + this.radiusParticles,
+                        this.Particles.get(p).get(1) + radiusParticles);
+
+                // if there is a collision between the dot and any of the walls
+                if(isCollision()) {
+                    // reset dot to center of canvas
+                    this.collidedParticles.add(p);
+                    break;
+                }
+
+            }
+
+        }
+
+        // redrawing of the object
+        canvas.drawColor(Color.WHITE);
+
+        for(ShapeDrawable wall : walls) {
+            wall.draw(canvas);
+        }
+        this.drawParticles(this.canvas);
+    }
+
+
+
+        /*
+        for (int p = 0; p < this.Particles.size(); p++){
+
+            double tempX = new Double(distance * Math.sin(direction));
+
+            int newX = this.Particles.get(p).get(0) + (int) tempX;
+            this.Particles.get(p).set(0, newX);
+
+            double tempY = new Double(distance * Math.cos(direction));
+
+            int newY = this.Particles.get(p).get(1) + (int) tempY;
+            this.Particles.get(p).set(1, newY);
+
+        }
+        */
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -372,6 +466,9 @@ public class MainActivity extends Activity implements OnClickListener {
         // - The text in the center of the buttons
         // - The margins
         // - The text that shows the margin
+
+        double distance = 120;
+        double direction = 0.5;
         switch (v.getId()) {
             // UP BUTTON
             case R.id.button1: {
@@ -380,6 +477,8 @@ public class MainActivity extends Activity implements OnClickListener {
                 drawable.setBounds(r.left,r.top-20,r.right,r.bottom-20);
                 textView.setText("\n\tMove Up" + "\n\tTop Margin = "
                         + drawable.getBounds().top);
+                this.updateParticles(distance, direction);
+
                 break;
             }
             // DOWN BUTTON
@@ -410,23 +509,9 @@ public class MainActivity extends Activity implements OnClickListener {
                 break;
             }
         }
-        // if there is a collision between the dot and any of the walls
-        if(isCollision()) {
-            // reset dot to center of canvas
-            Display display = getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            int width = size.x;
-            int height = size.y;
-            drawable.setBounds(width/2-20, height/2-20, width/2+20, height/2+20);
-        }
 
-        // redrawing of the object
-        canvas.drawColor(Color.WHITE);
-        drawable.draw(canvas);
-        for(ShapeDrawable wall : walls)
-            wall.draw(canvas);
     }
+
 
     /**
      * Determines if the drawable dot intersects with any of the walls.
