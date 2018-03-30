@@ -69,7 +69,7 @@ public class MainActivity extends Activity implements OnClickListener {
      * The walls.
      */
 
-    private List<ArrayList<Integer>> RoomParticles;
+    private List<int[]> RoomParticles;
 
     private Integer totalParticles;
 
@@ -207,13 +207,13 @@ public class MainActivity extends Activity implements OnClickListener {
         int boundary = 10;
 
         for (int room = 0; room < this.RoomParticles.size(); room++){
-            for (int particles = 0; particles < this.RoomParticles.get(room).get(1); particles++){
+            for (int particles = 0; particles < this.RoomParticles.get(room)[1]; particles++){
 
                 int x1, x2, y1, y2, Px, Py;
-                y1 = this.RoomParticles.get(room).get(3) + boundary;
-                x1 = this.RoomParticles.get(room).get(2) + boundary;
-                x2 = this.RoomParticles.get(room).get(4) - boundary;
-                y2 = this.RoomParticles.get(room).get(5) - boundary;
+                y1 = this.RoomParticles.get(room)[3] + boundary;
+                x1 = this.RoomParticles.get(room)[2] + boundary;
+                x2 = this.RoomParticles.get(room)[4] - boundary;
+                y2 = this.RoomParticles.get(room)[5] - boundary;
 
                 Px = ThreadLocalRandom.current().nextInt(x1, x2+1);
                 Py = ThreadLocalRandom.current().nextInt(y1, y2+1);
@@ -221,13 +221,13 @@ public class MainActivity extends Activity implements OnClickListener {
                 this.Particles.add(new int[] {Px, Py, 0});
             }
 
-            if (this.RoomParticles.get(room).size() == 11) {
-                for (int particles = 0; particles < this.RoomParticles.get(room).get(6); particles++) {
+            if (this.RoomParticles.get(room).length == 11) {
+                for (int particles = 0; particles < this.RoomParticles.get(room)[6]; particles++) {
                     int x1, x2, y1, y2, Px, Py;
-                    x1 = this.RoomParticles.get(room).get(7) + boundary;
-                    y1 = this.RoomParticles.get(room).get(8) + boundary;
-                    x2 = this.RoomParticles.get(room).get(9) - boundary;
-                    y2 = this.RoomParticles.get(room).get(10) - boundary;
+                    x1 = this.RoomParticles.get(room)[7] + boundary;
+                    y1 = this.RoomParticles.get(room)[8] + boundary;
+                    x2 = this.RoomParticles.get(room)[9] - boundary;
+                    y2 = this.RoomParticles.get(room)[10] - boundary;
 
                     Px = ThreadLocalRandom.current().nextInt(x1, x2 + 1);
                     Py = ThreadLocalRandom.current().nextInt(y1, y2 + 1);
@@ -242,24 +242,24 @@ public class MainActivity extends Activity implements OnClickListener {
 
         this.totalParticles = 108;
 
-        this.RoomParticles = new ArrayList<ArrayList<Integer>>();
+        this.RoomParticles = new ArrayList<int[]>();
 
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(1,5,0,520,440,690)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(2,7,0,690,440,920)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(3,7,440,690,920,920)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(4,5,920,690,1260,920)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(5,11,920,920,1260,1440)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(6,8,1260,690,1820,920)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(7,11,1260,920,1600,1440)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(8,2,1820,850,2170,920,7,1830,920,2170,1230)));
+        this.RoomParticles.add(new int[] {1,5,0,520,440,690});
+        this.RoomParticles.add(new int[] {2,7,0,690,440,920});
+        this.RoomParticles.add(new int[] {3,7,440,690,920,920});
+        this.RoomParticles.add(new int[] {4,5,920,690,1260,920});
+        this.RoomParticles.add(new int[] {5,11,920,920,1260,1440});
+        this.RoomParticles.add(new int[] {6,8,1260,690,1820,920});
+        this.RoomParticles.add(new int[] {7,11,1260,920,1600,1440});
+        this.RoomParticles.add(new int[] {8,2,1820,850,2170,920,7,1830,920,2170,1230});
 
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(9,7,2170,850,2600,1080)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(10,8,1820,500,2170,850)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(11,3,1820,130,1950,500)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(12,5,1380,0,1950,130)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(13,7,1010,0,1380,270)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(14,8,580,0,1010,270)));
-        this.RoomParticles.add(new ArrayList<Integer>(Arrays.asList(15,5,0,0,580,130,2,440,130,580,320)));
+        this.RoomParticles.add(new int[] {9,7,2170,850,2600,1080});
+        this.RoomParticles.add(new int[] {10,8,1820,500,2170,850});
+        this.RoomParticles.add(new int[] {11,3,1820,130,1950,500});
+        this.RoomParticles.add(new int[] {12,5,1380,0,1950,130});
+        this.RoomParticles.add(new int[] {13,7,1010,0,1380,270});
+        this.RoomParticles.add(new int[] {14,8,580,0,1010,270});
+        this.RoomParticles.add(new int[] {15,5,0,0,580,130,2,440,130,580,320});
 
     }
 
@@ -452,11 +452,11 @@ public class MainActivity extends Activity implements OnClickListener {
             }
 
             for (int room = 0; room < this.RoomParticles.size(); room ++){
-                int roomNr = this.RoomParticles.get(room).get(0);
-                int x1 = this.RoomParticles.get(room).get(2);
-                int y1 = this.RoomParticles.get(room).get(3);
-                int x2 = this.RoomParticles.get(room).get(4);
-                int y2 = this.RoomParticles.get(room).get(5);
+                int roomNr = this.RoomParticles.get(room)[0];
+                int x1 = this.RoomParticles.get(room)[2];
+                int y1 = this.RoomParticles.get(room)[3];
+                int x2 = this.RoomParticles.get(room)[4];
+                int y2 = this.RoomParticles.get(room)[5];
 
                 if (x1 < Px && x2 > Px && y1 < Py && y2 > Py) {
                     if (this.propabilityRoom.containsKey(roomNr)) {
@@ -470,12 +470,12 @@ public class MainActivity extends Activity implements OnClickListener {
                     this.Particles.get(particle)[2] = roomNr;
                 }
 
-                if (this.RoomParticles.get(room).size() == 11){
+                if (this.RoomParticles.get(room).length == 11){
 
-                    x1 = this.RoomParticles.get(room).get(7);
-                    y1 = this.RoomParticles.get(room).get(8);
-                    x2 = this.RoomParticles.get(room).get(9);
-                    y2 = this.RoomParticles.get(room).get(10);
+                    x1 = this.RoomParticles.get(room)[7];
+                    y1 = this.RoomParticles.get(room)[8];
+                    x2 = this.RoomParticles.get(room)[9];
+                    y2 = this.RoomParticles.get(room)[10];
 
                     if (x1 < Px && x2 > Px && y1 < Py && y2 > Py) {
                         if (this.propabilityRoom.containsKey(roomNr)) {
