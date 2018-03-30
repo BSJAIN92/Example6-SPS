@@ -267,44 +267,44 @@ public class MainActivity extends Activity implements OnClickListener {
 
         int movementSize = 3;
 
-        for (int p = 0; p < this.Particles.size(); p++){
-
+        for(int particleIdx = 0; particleIdx < this.Particles.size(); particleIdx++) {
+            int[] particle = this.Particles.get(particleIdx);
             double changeX = new Double(distance * Math.sin(direction));
             double changeY = new Double(distance * Math.cos(direction));
 
             while (changeX != 0 && changeY != 0) {
 
                 if (changeX >= 3) {
-                    int newX = this.Particles.get(p)[0] + movementSize;
-                    this.Particles.get(p)[0] = newX;
+                    int newX = particle[0] + movementSize;
+                    particle[0] = newX;
                     changeX = changeX - movementSize;
                 } else {
-                    int newX = this.Particles.get(p)[0] + (int) changeX;
-                    this.Particles.get(p)[0] = newX;
+                    int newX = particle[0] + (int) changeX;
+                    particle[0] = newX;
                     changeX = 0;
                 }
 
                 if (changeY >= 3) {
-                    int newY = this.Particles.get(p)[0]+ movementSize;
-                    this.Particles.get(p)[0] = newY;
+                    int newY = particle[0]+ movementSize;
+                    particle[0] = newY;
                     changeY = changeY - movementSize;
                 } else {
-                    int newY = this.Particles.get(p)[0] + (int) changeY;
-                    this.Particles.get(p)[0] = newY;
+                    int newY = particle[0] + (int) changeY;
+                    particle[0] = newY;
                     changeY = 0;
                 }
 
                 drawable = new ShapeDrawable(new OvalShape());
 
-                drawable.setBounds(this.Particles.get(p)[0] - this.radiusParticles,
-                        this.Particles.get(p)[1] - radiusParticles,
-                        this.Particles.get(p)[0] + this.radiusParticles,
-                        this.Particles.get(p)[1] + radiusParticles);
+                drawable.setBounds(particle[0] - this.radiusParticles,
+                        particle[1] - radiusParticles,
+                        particle[0] + this.radiusParticles,
+                        particle[1] + radiusParticles);
 
                 // if there is a collision between the dot and any of the walls
                 if(isCollision()) {
                     // reset dot to center of canvas
-                    this.collidedParticles.add(p);
+                    this.collidedParticles.add(particleIdx);
                     break;
                 }
 
@@ -443,20 +443,21 @@ public class MainActivity extends Activity implements OnClickListener {
         this.propabilityRoom.clear();
 
 
-        for (int particle = 0; particle < this.Particles.size(); particle++){
-            int Px = this.Particles.get(particle)[0];
-            int Py = this.Particles.get(particle)[1];
+        for (int particleIdx = 0; particleIdx < this.Particles.size(); particleIdx++){
+            int[] particle = this.Particles.get(particleIdx);
+            int Px = particle[0];
+            int Py = particle[1];
 
-            if (this.collidedParticles.contains(particle)){
+            if (this.collidedParticles.contains(particleIdx)){
                 continue;
             }
 
-            for (int room = 0; room < this.RoomParticles.size(); room ++){
-                int roomNr = this.RoomParticles.get(room)[0];
-                int x1 = this.RoomParticles.get(room)[2];
-                int y1 = this.RoomParticles.get(room)[3];
-                int x2 = this.RoomParticles.get(room)[4];
-                int y2 = this.RoomParticles.get(room)[5];
+            for (int[] room : this.RoomParticles) {
+                int roomNr = room[0];
+                int x1 = room[2];
+                int y1 = room[3];
+                int x2 = room[4];
+                int y2 = room[5];
 
                 if (x1 < Px && x2 > Px && y1 < Py && y2 > Py) {
                     if (this.propabilityRoom.containsKey(roomNr)) {
@@ -467,15 +468,15 @@ public class MainActivity extends Activity implements OnClickListener {
                     }
 
                     // set room
-                    this.Particles.get(particle)[2] = roomNr;
+                    particle[2] = roomNr;
                 }
 
-                if (this.RoomParticles.get(room).length == 11){
+                if (room.length == 11){
 
-                    x1 = this.RoomParticles.get(room)[7];
-                    y1 = this.RoomParticles.get(room)[8];
-                    x2 = this.RoomParticles.get(room)[9];
-                    y2 = this.RoomParticles.get(room)[10];
+                    x1 = room[7];
+                    y1 = room[8];
+                    x2 = room[9];
+                    y2 = room[10];
 
                     if (x1 < Px && x2 > Px && y1 < Py && y2 > Py) {
                         if (this.propabilityRoom.containsKey(roomNr)) {
@@ -485,7 +486,7 @@ public class MainActivity extends Activity implements OnClickListener {
                             this.propabilityRoom.put(roomNr, 1);
                         }
                         // set room
-                        this.Particles.get(particle)[2] = roomNr;
+                        particle[2] = roomNr;
                     }
 
                 }
