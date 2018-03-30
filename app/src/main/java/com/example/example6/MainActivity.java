@@ -267,51 +267,20 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void updateParticles(double distance, double direction) {
 
-        int movementSize = 3;
-
         for(int particleIdx = 0; particleIdx < this.Particles.size(); particleIdx++) {
             int[] particle = this.Particles.get(particleIdx);
-            double changeX = new Double(distance * Math.sin(direction));
-            double changeY = new Double(distance * Math.cos(direction));
+            int prevX = particle[0];
+            int prevY = particle[1];
+            int newX = particle[0] + (int) (distance * Math.sin(direction));
+            int newY = particle[1] + (int) (distance * Math.cos(direction));
+            this.Particles.set(particleIdx, new int[] {newX, newY, particle[2]});
 
-            while (changeX != 0 && changeY != 0) {
+            drawable = new ShapeDrawable(new RectShape());
+            drawable.setBounds(prevX, prevY, newX, newY);
 
-                if (changeX >= 3) {
-                    int newX = particle[0] + movementSize;
-                    particle[0] = newX;
-                    changeX = changeX - movementSize;
-                } else {
-                    int newX = particle[0] + (int) changeX;
-                    particle[0] = newX;
-                    changeX = 0;
-                }
-
-                if (changeY >= 3) {
-                    int newY = particle[0]+ movementSize;
-                    particle[0] = newY;
-                    changeY = changeY - movementSize;
-                } else {
-                    int newY = particle[0] + (int) changeY;
-                    particle[0] = newY;
-                    changeY = 0;
-                }
-
-                drawable = new ShapeDrawable(new OvalShape());
-
-                drawable.setBounds(particle[0] - this.radiusParticles,
-                        particle[1] - radiusParticles,
-                        particle[0] + this.radiusParticles,
-                        particle[1] + radiusParticles);
-
-                // if there is a collision between the dot and any of the walls
-                if(isCollision()) {
-                    // reset dot to center of canvas
-                    this.collidedParticles.add(particleIdx);
-                    break;
-                }
-
+            if (isCollision()) {
+                this.collidedParticles.add(particleIdx);
             }
-
         }
 
 
@@ -401,41 +370,32 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
-    private  int findParticle(int nr, int room) {
-        int count = 0;
-        for(int i = 0; i < this.Particles.size(); i++) {
-            if (this.collidedParticles.contains(i)) {
-                continue;
-            }
-            if (this.Particles.get(i).length == 2) {
-                continue;
-            }
-            if (this.Particles.get(i)[2] == room) {
-                if (nr == count) {
-                    break;
-                } else {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
     private void resampleParticles() {
 
         int maxValue = 0;
-        int currentKey = 0;
+        int room = 0;
 
         for (Map.Entry<Integer, Integer> entry : this.propabilityRoom.entrySet()){
             if (entry.getValue() > maxValue){
-                currentKey = entry.getKey();
+                room = entry.getKey();
                 maxValue = entry.getValue();
             }
         }
 
+        List<Integer> validLocations = new ArrayList<Integer>();
+
+        for (int i = 0; i < this.Particles.size(); i++) {
+            if (this.collidedParticles.contains(i)) {
+                continue;
+            }
+            if (this.Particles.get(i)[2] == room) {
+                validLocations.add(i);
+            }
+        }
+
         for (int idx : this.collidedParticles) {
-            int particleNr = ThreadLocalRandom.current().nextInt(0, maxValue);
-            int particleIdx = this.findParticle(particleNr, this.propabilityRoom.get(currentKey));
+            int validIdx = ThreadLocalRandom.current().nextInt(0, validLocations.size());
+            int particleIdx = validLocations.get(validIdx);
             int[] particle = this.Particles.get(particleIdx);
             this.Particles.set(idx, particle.clone());
         }
