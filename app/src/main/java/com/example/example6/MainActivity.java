@@ -206,14 +206,16 @@ public class MainActivity extends Activity implements OnClickListener {
 
         int boundary = 10;
 
-        for (int room = 0; room < this.RoomParticles.size(); room++){
-            for (int particles = 0; particles < this.RoomParticles.get(room)[1]; particles++){
+        for (int roomIdx = 0; roomIdx < this.RoomParticles.size(); roomIdx++){
+            int[] room = this.RoomParticles.get(roomIdx);
+
+            for (int particles = 0; particles < room[1]; particles++){
 
                 int x1, x2, y1, y2, Px, Py;
-                y1 = this.RoomParticles.get(room)[3] + boundary;
-                x1 = this.RoomParticles.get(room)[2] + boundary;
-                x2 = this.RoomParticles.get(room)[4] - boundary;
-                y2 = this.RoomParticles.get(room)[5] - boundary;
+                y1 = room[3] + boundary;
+                x1 = room[2] + boundary;
+                x2 = room[4] - boundary;
+                y2 = room[5] - boundary;
 
                 Px = ThreadLocalRandom.current().nextInt(x1, x2+1);
                 Py = ThreadLocalRandom.current().nextInt(y1, y2+1);
@@ -221,13 +223,13 @@ public class MainActivity extends Activity implements OnClickListener {
                 this.Particles.add(new int[] {Px, Py, 0});
             }
 
-            if (this.RoomParticles.get(room).length == 11) {
-                for (int particles = 0; particles < this.RoomParticles.get(room)[6]; particles++) {
+            if (room.length == 11) {
+                for (int particles = 0; particles < room[6]; particles++) {
                     int x1, x2, y1, y2, Px, Py;
-                    x1 = this.RoomParticles.get(room)[7] + boundary;
-                    y1 = this.RoomParticles.get(room)[8] + boundary;
-                    x2 = this.RoomParticles.get(room)[9] - boundary;
-                    y2 = this.RoomParticles.get(room)[10] - boundary;
+                    x1 = room[7] + boundary;
+                    y1 = room[8] + boundary;
+                    x2 = room[9] - boundary;
+                    y2 = room[10] - boundary;
 
                     Px = ThreadLocalRandom.current().nextInt(x1, x2 + 1);
                     Py = ThreadLocalRandom.current().nextInt(y1, y2 + 1);
@@ -402,6 +404,9 @@ public class MainActivity extends Activity implements OnClickListener {
     private  int findParticle(int nr, int room) {
         int count = 0;
         for(int i = 0; i < this.Particles.size(); i++) {
+            if (this.collidedParticles.contains(i)) {
+                continue;
+            }
             if (this.Particles.get(i).length == 2) {
                 continue;
             }
