@@ -34,8 +34,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -72,7 +77,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private Set<Integer> collidedParticles;
 
-     private  int radiusParticles = 5;
+    private HashMap<Integer, Integer> propabilityRoom;
+
+    private  int radiusParticles = 5;
 
 
 
@@ -106,6 +113,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 
         walls = new ArrayList<>();
+        this.propabilityRoom = new HashMap<Integer, Integer>();
 
         this.collidedParticles = new HashSet<Integer>();
         /*
@@ -411,13 +419,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         }
 
-        // redrawing of the object
-        canvas.drawColor(Color.WHITE);
 
-        for(ShapeDrawable wall : walls) {
-            wall.draw(canvas);
-        }
-        this.drawParticles(this.canvas);
     }
 
 
@@ -479,6 +481,17 @@ public class MainActivity extends Activity implements OnClickListener {
                         + drawable.getBounds().top);
                 this.updateParticles(distance, direction);
 
+                this.calculateProbability();
+                this.resampleParticles();
+
+                // redrawing of the object
+                canvas.drawColor(Color.WHITE);
+
+                for(ShapeDrawable wall : walls) {
+                    wall.draw(canvas);
+                }
+                this.drawParticles(this.canvas);
+
                 break;
             }
             // DOWN BUTTON
@@ -508,6 +521,112 @@ public class MainActivity extends Activity implements OnClickListener {
                         + drawable.getBounds().left);
                 break;
             }
+        }
+
+    }
+
+    private  int findParticle(int nr, int room) {
+        int count = 0;
+        for(int i = 0; i < this.Particles.size(); i++) {
+            if (this.Particles.get(i).size() == 2) {
+                continue;
+            }
+            if (this.Particles.get(i).get(2) == room) {
+                if (nr == count) {
+                    break;
+                } else {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private void resampleParticles() {
+
+        int maxValue = 0;
+        int currentKey = 0;
+
+        for (Map.Entry<Integer, Integer> entry : this.propabilityRoom.entrySet()){
+            if (entry.getValue() > maxValue){
+                currentKey = entry.getKey();
+                maxValue = entry.getValue();
+            }
+        }
+
+        for (int idx : this.collidedParticles) {
+            int particleNr = ThreadLocalRandom.current().nextInt(0, maxValue);
+            int particleIdx = this.findParticle(particleNr, this.propabilityRoom.get(currentKey));
+            List<Integer> particle = this.Particles.get(particleIdx);
+            ArrayList<Integer> newParticle = new ArrayList<Integer>(Arrays.asList(particle.get(0), particle.get(1), particle.get(2)));
+            this.Particles.set(idx, newParticle);
+        }
+        this.collidedParticles.clear();
+
+    }
+
+    private void calculateProbability() {
+
+        this.propabilityRoom.clear();
+
+
+        for (int particle = 0; particle < this.Particles.size(); particle++){
+            int Px = this.Particles.get(particle).get(0);
+            int Py = this.Particles.get(particle).get(1);
+
+            if (this.collidedParticles.contains(particle)){
+                continue;
+            }
+
+            for (int room = 0; room < this.RoomParticles.size(); room ++){
+                int roomNr = this.RoomParticles.get(room).get(0);
+                int x1 = this.RoomParticles.get(room).get(2);
+                int y1 = this.RoomParticles.get(room).get(3);
+                int x2 = this.RoomParticles.get(room).get(4);
+                int y2 = this.RoomParticles.get(room).get(5);
+
+                if (x1 < Px && x2 > Px && y1 < Py && y2 > Py) {
+                    if (this.propabilityRoom.containsKey(roomNr)) {
+                        this.propabilityRoom.put(roomNr, this.propabilityRoom.get(roomNr) + 1);
+                    }
+                    else {
+                        this.propabilityRoom.put(roomNr, 1);
+                    }
+                    if (this.Particles.get(particle).size() == 2){
+                        this.Particles.get(particle).add(roomNr);
+                    }
+                    else {
+                        this.Particles.get(particle).set(2, roomNr);
+                    }
+                }
+
+                if (this.RoomParticles.get(room).size() == 11){
+
+                    x1 = this.RoomParticles.get(room).get(7);
+                    y1 = this.RoomParticles.get(room).get(8);
+                    x2 = this.RoomParticles.get(room).get(9);
+                    y2 = this.RoomParticles.get(room).get(10);
+
+                    if (x1 < Px && x2 > Px && y1 < Py && y2 > Py) {
+                        if (this.propabilityRoom.containsKey(roomNr)) {
+                            this.propabilityRoom.put(roomNr, this.propabilityRoom.get(roomNr) + 1);
+                        }
+                        else {
+                            this.propabilityRoom.put(roomNr, 1);
+                        }
+                        if (this.Particles.get(particle).size() == 2){
+                            this.Particles.get(particle).add(roomNr);
+                        }
+                        else {
+                            this.Particles.get(particle).set(2, roomNr);
+                        }
+                    }
+
+                }
+
+
+            }
+
         }
 
     }
