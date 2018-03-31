@@ -10,9 +10,11 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Build;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
+import android.hardware.Sensor;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +26,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.hardware.SensorManager;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,7 +52,11 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Smart Phone Sensing Example 6. Object movement and interaction on canvas.
  */
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity implements SensorEventListener, OnClickListener {
+
+    private SensorManager sensorManager;
+
+    private Sensor rotationSensor;
 
     /**
      * The buttons.
@@ -75,11 +84,14 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private List<int[]> Particles;
 
+    private int mLastAccuracy;
+
     private Set<Integer> collidedParticles;
 
     private HashMap<Integer, Integer> propabilityRoom;
 
     private  int radiusParticles = 5;
+    private int SENSOR_DELAY_MICROS = 1000 * 1000; // 16ms
 
     private List<ShapeDrawable> walls;
     private List<int[]> wallsBounds;
@@ -87,6 +99,9 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        sensorManager.registerListener(this, rotationSensor, sensorManager.SENSOR_DELAY_NORMAL);
 
         // set the buttons
         up = (Button) findViewById(R.id.button1);
@@ -181,6 +196,26 @@ public class MainActivity extends Activity implements OnClickListener {
         left.setEnabled(false);
         right.setEnabled(false);
         down.setEnabled(false);
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        if (mLastAccuracy != accuracy) {
+            mLastAccuracy = accuracy;
+        }
+    }
+
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor == rotationSensor) {
+            float[] rotationMatrix = new float[9];
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+            // formula for yaw from here: http://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part2.html
+            double angle =  Math.atan2(rotationMatrix[3], rotationMatrix[0]);
+            System.out.println(angle);
+        }
 
     }
 
