@@ -9,41 +9,25 @@ import android.graphics.Rect;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Build;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.annotation.RequiresApi;
 import android.hardware.Sensor;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +41,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private SensorManager sensorManager;
 
     private Sensor rotationSensor;
+    private Sensor stepDetection;
+    private Sensor stepCounter;
 
     /**
      * The buttons.
@@ -84,6 +70,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private List<int[]> Particles;
 
+    private int detectedSteps = 0;
+    private int countedSteps = 0;
+
     private int mLastAccuracy;
 
     private Set<Integer> collidedParticles;
@@ -101,7 +90,11 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         setContentView(R.layout.activity_main);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        stepDetection = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         sensorManager.registerListener(this, rotationSensor, sensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, stepDetection, sensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, stepCounter, sensorManager.SENSOR_DELAY_NORMAL);
 
         // set the buttons
         up = (Button) findViewById(R.id.button1);
@@ -215,6 +208,17 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             // formula for yaw from here: http://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part2.html
             double angle =  Math.atan2(rotationMatrix[3], rotationMatrix[0]);
             System.out.println(angle);
+        }
+
+        if (event.sensor == stepDetection) {
+            detectedSteps = detectedSteps + 1;
+            textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps);
+            System.out.println("GOT STEP");
+        }
+
+        if (event.sensor == stepCounter) {
+            countedSteps = (int) event.values[0];
+            textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps);
         }
 
     }
