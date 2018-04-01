@@ -350,22 +350,22 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         this.RoomParticles = new ArrayList<int[]>();
 
-        this.RoomParticles.add(new int[] {1,5,0,520,440,690});
-        this.RoomParticles.add(new int[] {2,7,0,690,440,920});
-        this.RoomParticles.add(new int[] {3,7,440,690,920,920});
-        this.RoomParticles.add(new int[] {4,5,920,690,1260,920});
-        this.RoomParticles.add(new int[] {5,11,920,920,1260,1440});
-        this.RoomParticles.add(new int[] {6,8,1260,690,1820,920});
-        this.RoomParticles.add(new int[] {7,11,1260,920,1600,1440});
-        this.RoomParticles.add(new int[] {8,2,1820,850,2170,920,7,1830,920,2170,1230});
+        this.RoomParticles.add(new int[] {1,2283,0,520,440,690});
+        this.RoomParticles.add(new int[] {2,3089,0,690,440,920});
+        this.RoomParticles.add(new int[] {3,3369,440,690,920,920});
+        this.RoomParticles.add(new int[] {4,2387,920,690,1260,920});
+        this.RoomParticles.add(new int[] {5,5396,920,920,1260,1440});
+        this.RoomParticles.add(new int[] {6,3931,1260,690,1820,920});
+        this.RoomParticles.add(new int[] {7,5396,1260,920,1600,1440});
+        this.RoomParticles.add(new int[] {8,748,1820,850,2170,920,3217,1830,920,2170,1230});
 
-        this.RoomParticles.add(new int[] {9,7,2170,850,2600,1080});
-        this.RoomParticles.add(new int[] {10,8,1820,500,2170,850});
-        this.RoomParticles.add(new int[] {11,3,1820,130,1950,500});
-        this.RoomParticles.add(new int[] {12,5,1380,0,1950,130});
-        this.RoomParticles.add(new int[] {13,7,1010,0,1380,270});
-        this.RoomParticles.add(new int[] {14,8,580,0,1010,270});
-        this.RoomParticles.add(new int[] {15,5,0,0,580,130,2,440,130,580,320});
+        this.RoomParticles.add(new int[] {9,3019,2170,850,2600,1080});
+        this.RoomParticles.add(new int[] {10,3739,1820,500,2170,850});
+        this.RoomParticles.add(new int[] {11,1468,1820,130,1950,500});
+        this.RoomParticles.add(new int[] {12,2262,1380,0,1950,130});
+        this.RoomParticles.add(new int[] {13,3049,1010,0,1380,270});
+        this.RoomParticles.add(new int[] {14,3543,580,0,1010,270});
+        this.RoomParticles.add(new int[] {15,2301,0,0,580,130,812,440,130,580,320});
 
     }
 
