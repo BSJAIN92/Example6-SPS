@@ -48,6 +48,14 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private Sensor stepDetection;
     private Sensor stepCounter;
     private Sensor accSensor;
+    private Sensor linearSensor;
+
+    // Marco, 1.75m, Stef: 1.82m.
+    // http://livehealthy.chron.com/determine-stride-pedometer-height-weight-4518.html
+    private boolean marco = false;
+    private double[] stride = new double[]{1.75f * 0.415, 1.82f *  0.415};
+
+    private double latestAngle = 0.0;
 
     /**
      * The buttons.
@@ -77,7 +85,10 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private List<Double> MagnitudesPast = new ArrayList<Double>();
     private List<Double> MagnitudesNow = new ArrayList<Double>();
+    private List<Float> LinearList = new ArrayList<Float>();
     private int TIME_WINDOW = 1000;
+
+    private boolean standing = true;
 
     private int detectedSteps = 0;
     private int countedSteps = 0;
@@ -104,10 +115,12 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         stepDetection = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        linearSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         sensorManager.registerListener(this, rotationSensor, sensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, stepDetection, sensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, stepCounter, sensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this, stepDetection, sensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this, stepCounter, sensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, accSensor, sensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, linearSensor, sensorManager.SENSOR_DELAY_NORMAL);
 
         lastTime =  System.currentTimeMillis();
 
@@ -217,12 +230,12 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        long currentTime = System.currentTimeMillis();
         /*if (event.sensor == rotationSensor) {
             float[] rotationMatrix = new float[9];
             SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
             // formula for yaw from here: http://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part2.html
-            double angle =  Math.atan2(rotationMatrix[3], rotationMatrix[0]);
-            System.out.println(angle);
+            latestAngle =  Math.atan2(rotationMatrix[3], rotationMatrix[0]);
         }
 
         if (event.sensor == stepDetection) {
@@ -234,24 +247,46 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         if (event.sensor == stepCounter) {
             countedSteps = (int) event.values[0];
             textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps);
-        }*/
+        }
 
         if (event.sensor == accSensor) {
             float[] acc = event.values;
             double magnitude = Math.sqrt((Math.pow(acc[0], 2) + Math.pow(acc[1], 2) + Math.pow(acc[2], 2)));
             MagnitudesNow.add(magnitude);
-            long currentTime = System.currentTimeMillis();
             if(currentTime - lastTime> TIME_WINDOW) {
                 this.processMagnitudes();
-                lastTime = currentTime;
                 MagnitudesPast.clear();
                 for(int i = 0; i < MagnitudesNow.size(); i++) {
                     MagnitudesPast.add(MagnitudesNow.get(i));
                 }
                 MagnitudesNow.clear();
             }
+        }*/
+        
+        if (event.sensor == linearSensor) {
+            LinearList.add(event.values[0]);
+            if(currentTime - lastTime> TIME_WINDOW) {
+                if (this.walkingDetection(event.values[0]) ) {
+                    textView.setText("We ARE WALKING");
+                } else {
+                    textView.setText("WE ARE NOT WALKING");
+                }
+                LinearList.clear();
+            }
         }
 
+        lastTime = currentTime;
+
+    }
+
+    private boolean walkingDetection(double linearAcc) {
+        Max maximum = new Max();
+        double max = maximum.evaluate(toFloatPrimitive(LinearList));
+
+        if (max > 2 && max < 5) {
+            return true;
+        }
+        return false;
     }
 
     private void processMagnitudes() {
@@ -262,16 +297,16 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         int sizeNow =  MagnitudesNow.size();
         double[] compare = new double[] {(double) sizeNow, (double) sizePast};
         double smallest = minimum.evaluate(compare);
-        if (sizePast == 0) {
+        if (smallest < 25) {
             return;
         }
         PearsonsCorrelation pearson = new PearsonsCorrelation();
-        double correl = pearson.correlation(toPrimitive(MagnitudesNow.subList(0, (int) smallest)), toPrimitive(MagnitudesPast.subList(0, (int) smallest)));
+        double correl = pearson.correlation(toDoublePrimitive(MagnitudesNow.subList(0, (int) smallest - 1)), toDoublePrimitive(MagnitudesPast.subList(0, (int) smallest - 1)));
         StandardDeviation standardDeviation = new StandardDeviation();
         Mean mean = new Mean();
-        double std = standardDeviation.evaluate(toPrimitive(MagnitudesPast));
-        double max = maximum.evaluate(toPrimitive(MagnitudesPast));
-        double mu = mean.evaluate(toPrimitive(MagnitudesPast));
+        double std = standardDeviation.evaluate(toDoublePrimitive(MagnitudesPast));
+        double max = maximum.evaluate(toDoublePrimitive(MagnitudesPast));
+        double mu = mean.evaluate(toDoublePrimitive(MagnitudesPast));
         double threshold = 1.5;
         boolean peak = false;
         int count = 0;
@@ -280,10 +315,18 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         textView.setText(out);
     }
 
-    private double[] toPrimitive(List<Double> array) {
+    private double[] toDoublePrimitive(List<Double> array) {
         double[] result = new double[array.size()];
         for (int i = 0; i < array.size(); i++) {
            result[i] = array.get(i).doubleValue();
+        }
+        return result;
+    }
+
+    private double[] toFloatPrimitive(List<Float> array) {
+        double[] result = new double[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            result[i] = array.get(i).doubleValue();
         }
         return result;
     }
