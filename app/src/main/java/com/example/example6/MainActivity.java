@@ -259,6 +259,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             if(currentTime - lastTime> TIME_WINDOW) {
                 if (processMagnitudes()){
                     ourSteps = ourSteps + 1;
+                    this.recalc();
                 }
                 textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps + " ours "+ ourSteps);
                 MagnitudesPast.clear();
@@ -267,7 +268,6 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 }
                 MagnitudesNow.clear();
                 lastTime = currentTime;
-                this.recalc();
             }
         }
 
@@ -398,22 +398,22 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         this.RoomParticles = new ArrayList<int[]>();
 
-        this.RoomParticles.add(new int[] {1,457,0,520,440,690});
-        this.RoomParticles.add(new int[] {2,618,0,690,440,920});
-        this.RoomParticles.add(new int[] {3,674,440,690,920,920});
-        this.RoomParticles.add(new int[] {4,478,920,690,1260,920});
-        this.RoomParticles.add(new int[] {5,1080,920,920,1260,1440});
-        this.RoomParticles.add(new int[] {6,787,1260,690,1820,920});
-        this.RoomParticles.add(new int[] {7,1080,1260,920,1600,1440});
-        this.RoomParticles.add(new int[] {8,150,1820,850,2170,920,644,1830,920,2170,1230});
+        this.RoomParticles.add(new int[] {1,92,0,520,440,690});
+        this.RoomParticles.add(new int[] {2,124,0,690,440,920});
+        this.RoomParticles.add(new int[] {3,135,440,690,920,920});
+        this.RoomParticles.add(new int[] {4,96,920,690,1260,920});
+        this.RoomParticles.add(new int[] {5,216,920,920,1260,1440});
+        this.RoomParticles.add(new int[] {6,158,1260,690,1820,920});
+        this.RoomParticles.add(new int[] {7,216,1260,920,1600,1440});
+        this.RoomParticles.add(new int[] {8,30,1820,850,2170,920,129,1830,920,2170,1230});
 
-        this.RoomParticles.add(new int[] {9,604,2170,850,2600,1080});
-        this.RoomParticles.add(new int[] {10,748,1820,500,2170,850});
-        this.RoomParticles.add(new int[] {11,294,1820,130,1950,500});
-        this.RoomParticles.add(new int[] {12,453,1380,0,1950,130});
-        this.RoomParticles.add(new int[] {13,610,1010,0,1380,270});
-        this.RoomParticles.add(new int[] {14,709,580,0,1010,270});
-        this.RoomParticles.add(new int[] {15,461,0,0,580,130,163,440,130,580,320});
+        this.RoomParticles.add(new int[] {9,121,2170,850,2600,1080});
+        this.RoomParticles.add(new int[] {10,150,1820,500,2170,850});
+        this.RoomParticles.add(new int[] {11,59,1820,130,1950,500});
+        this.RoomParticles.add(new int[] {12,91,1380,0,1950,130});
+        this.RoomParticles.add(new int[] {13,122,1010,0,1380,270});
+        this.RoomParticles.add(new int[] {14,142,580,0,1010,270});
+        this.RoomParticles.add(new int[] {15,93,0,0,580,130,33,440,130,580,320});
 
     }
 
