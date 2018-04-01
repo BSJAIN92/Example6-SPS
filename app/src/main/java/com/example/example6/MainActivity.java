@@ -53,8 +53,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     // Marco, 1.75m, Stef: 1.82m.
     // http://livehealthy.chron.com/determine-stride-pedometer-height-weight-4518.html
     private boolean marco = false;
-    private double[] stride = new double[]{1.75f * 0.415, 1.82f *  0.415};
-
+    private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
+    private double stride = strides[0];
     private double latestAngle = 0.0;
 
     /**
@@ -95,6 +95,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private int ourSteps = 0;
 
     private int mLastAccuracy;
+
+    private boolean processing = false;
 
     private Set<Integer> collidedParticles;
 
@@ -265,9 +267,30 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 }
                 MagnitudesNow.clear();
                 lastTime = currentTime;
+                this.recalc();
             }
         }
 
+    }
+
+    private void recalc() {
+        if (processing) {
+            return;
+        }
+        processing = true;
+        this.updateParticles();
+
+        this.calculateProbability();
+        this.resampleParticles();
+
+        // redrawing of the object
+        canvas.drawColor(Color.WHITE);
+
+        for(ShapeDrawable wall : walls) {
+            wall.draw(canvas);
+        }
+        this.drawParticles(this.canvas);
+        processing = false;
     }
 
     private boolean walkingDetection(double linearAcc) {
@@ -394,7 +417,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     }
 
-    private void updateParticles(double distance, double direction) {
+    private void updateParticles() {
+        double direction = latestAngle;
+        double distance = stride;
 
         for(int particleIdx = 0; particleIdx < this.Particles.size(); particleIdx++) {
             int[] particle = this.Particles.get(particleIdx);
@@ -453,7 +478,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 drawable.setBounds(r.left,r.top-20,r.right,r.bottom-20);
                 textView.setText("\n\tMove Up" + "\n\tTop Margin = "
                         + drawable.getBounds().top);
-                this.updateParticles(distance, direction);
+                this.updateParticles();
 
                 this.calculateProbability();
                 this.resampleParticles();
