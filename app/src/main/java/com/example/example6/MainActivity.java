@@ -33,6 +33,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.descriptive.moment.*;
+import org.apache.commons.math3.stat.descriptive.rank.*;
+
 /**
  * Smart Phone Sensing Example 6. Object movement and interaction on canvas.
  */
@@ -43,6 +47,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private Sensor rotationSensor;
     private Sensor stepDetection;
     private Sensor stepCounter;
+    private Sensor accSensor;
 
     /**
      * The buttons.
@@ -70,6 +75,10 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private List<int[]> Particles;
 
+    private List<Double> MagnitudesPast = new ArrayList<Double>();
+    private List<Double> MagnitudesNow = new ArrayList<Double>();
+    private int TIME_WINDOW = 1000;
+
     private int detectedSteps = 0;
     private int countedSteps = 0;
 
@@ -82,6 +91,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private  int radiusParticles = 5;
     private int SENSOR_DELAY_MICROS = 1000 * 1000; // 16ms
 
+    private long lastTime;
+
     private List<ShapeDrawable> walls;
     private List<int[]> wallsBounds;
     @Override
@@ -92,9 +103,13 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         stepDetection = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, rotationSensor, sensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, stepDetection, sensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, stepCounter, sensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, accSensor, sensorManager.SENSOR_DELAY_NORMAL);
+
+        lastTime =  System.currentTimeMillis();
 
         // set the buttons
         up = (Button) findViewById(R.id.button1);
@@ -202,7 +217,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor == rotationSensor) {
+        /*if (event.sensor == rotationSensor) {
             float[] rotationMatrix = new float[9];
             SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
             // formula for yaw from here: http://danceswithcode.net/engineeringnotes/rotations_in_3d/rotations_in_3d_part2.html
@@ -219,8 +234,58 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         if (event.sensor == stepCounter) {
             countedSteps = (int) event.values[0];
             textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps);
+        }*/
+
+        if (event.sensor == accSensor) {
+            float[] acc = event.values;
+            double magnitude = Math.sqrt((Math.pow(acc[0], 2) + Math.pow(acc[1], 2) + Math.pow(acc[2], 2)));
+            MagnitudesNow.add(magnitude);
+            long currentTime = System.currentTimeMillis();
+            if(currentTime - lastTime> TIME_WINDOW) {
+                this.processMagnitudes();
+                lastTime = currentTime;
+                MagnitudesPast.clear();
+                for(int i = 0; i < MagnitudesNow.size(); i++) {
+                    MagnitudesPast.add(MagnitudesNow.get(i));
+                }
+                MagnitudesNow.clear();
+            }
         }
 
+    }
+
+    private void processMagnitudes() {
+        // substract mean all the time
+        Max maximum = new Max();
+        Min minimum = new Min();
+        int sizePast = MagnitudesPast.size();
+        int sizeNow =  MagnitudesNow.size();
+        double[] compare = new double[] {(double) sizeNow, (double) sizePast};
+        double smallest = minimum.evaluate(compare);
+        if (sizePast == 0) {
+            return;
+        }
+        PearsonsCorrelation pearson = new PearsonsCorrelation();
+        double correl = pearson.correlation(toPrimitive(MagnitudesNow.subList(0, (int) smallest)), toPrimitive(MagnitudesPast.subList(0, (int) smallest)));
+        StandardDeviation standardDeviation = new StandardDeviation();
+        Mean mean = new Mean();
+        double std = standardDeviation.evaluate(toPrimitive(MagnitudesPast));
+        double max = maximum.evaluate(toPrimitive(MagnitudesPast));
+        double mu = mean.evaluate(toPrimitive(MagnitudesPast));
+        double threshold = 1.5;
+        boolean peak = false;
+        int count = 0;
+
+        String out = Double.toString(std) + "correl " + correl;
+        textView.setText(out);
+    }
+
+    private double[] toPrimitive(List<Double> array) {
+        double[] result = new double[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+           result[i] = array.get(i).doubleValue();
+        }
+        return result;
     }
 
     private void drawParticles(Canvas canvas) {
