@@ -262,12 +262,13 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                     this.recalc();
                 }
                 textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps + " ours "+ ourSteps);
-                MagnitudesPast.clear();
-                for(int i = 0; i < MagnitudesNow.size(); i++) {
-                    MagnitudesPast.add(MagnitudesNow.get(i));
-                }
+                //MagnitudesPast.clear();
+                //for(int i = 0; i < MagnitudesNow.size(); i++) {
+                //    MagnitudesPast.add(MagnitudesNow.get(i));
+                //}
                 MagnitudesNow.clear();
                 lastTime = currentTime;
+                return;
             }
         }
 
@@ -398,22 +399,22 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         this.RoomParticles = new ArrayList<int[]>();
 
-        this.RoomParticles.add(new int[] {1,92,0,520,440,690});
-        this.RoomParticles.add(new int[] {2,124,0,690,440,920});
-        this.RoomParticles.add(new int[] {3,135,440,690,920,920});
-        this.RoomParticles.add(new int[] {4,96,920,690,1260,920});
-        this.RoomParticles.add(new int[] {5,216,920,920,1260,1440});
-        this.RoomParticles.add(new int[] {6,158,1260,690,1820,920});
-        this.RoomParticles.add(new int[] {7,216,1260,920,1600,1440});
-        this.RoomParticles.add(new int[] {8,30,1820,850,2170,920,129,1830,920,2170,1230});
+        this.RoomParticles.add(new int[] {1,5,0,520,440,690});
+        this.RoomParticles.add(new int[] {2,7,0,690,440,920});
+        this.RoomParticles.add(new int[] {3,7,440,690,920,920});
+        this.RoomParticles.add(new int[] {4,5,920,690,1260,920});
+        this.RoomParticles.add(new int[] {5,11,920,920,1260,1440});
+        this.RoomParticles.add(new int[] {6,8,1260,690,1820,920});
+        this.RoomParticles.add(new int[] {7,11,1260,920,1600,1440});
+        this.RoomParticles.add(new int[] {8,2,1820,850,2170,920,7,1830,920,2170,1230});
 
-        this.RoomParticles.add(new int[] {9,121,2170,850,2600,1080});
-        this.RoomParticles.add(new int[] {10,150,1820,500,2170,850});
-        this.RoomParticles.add(new int[] {11,59,1820,130,1950,500});
-        this.RoomParticles.add(new int[] {12,91,1380,0,1950,130});
-        this.RoomParticles.add(new int[] {13,122,1010,0,1380,270});
-        this.RoomParticles.add(new int[] {14,142,580,0,1010,270});
-        this.RoomParticles.add(new int[] {15,93,0,0,580,130,33,440,130,580,320});
+        this.RoomParticles.add(new int[] {9,7,2170,850,2600,1080});
+        this.RoomParticles.add(new int[] {10,8,1820,500,2170,850});
+        this.RoomParticles.add(new int[] {11,3,1820,130,1950,500});
+        this.RoomParticles.add(new int[] {12,5,1380,0,1950,130});
+        this.RoomParticles.add(new int[] {13,7,1010,0,1380,270});
+        this.RoomParticles.add(new int[] {14,8,580,0,1010,270});
+        this.RoomParticles.add(new int[] {15,5,0,0,580,130,2,440,130,580,320});
 
     }
 
@@ -428,9 +429,30 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             int newX = particle[0] + (int) (distance * Math.sin(direction));
             int newY = particle[1] + (int) (distance * Math.cos(direction));
             this.Particles.set(particleIdx, new int[] {newX, newY, particle[2]});
+            int left = 0;
+            int right = 0;
+            int top = 0;
+            int bottom = 0;
 
             drawable = new ShapeDrawable(new RectShape());
-            drawable.setBounds(prevX, prevY, newX, newY);
+            if (prevX > newX){
+                left = newX;
+                right = prevX;
+            }
+            else {
+                left = prevX;
+                right = newX;
+            }
+            if (prevY > newY){
+                top = newY;
+                bottom = prevY;
+            }
+            else {
+                top = prevY;
+                bottom = newY;
+            }
+
+            drawable.setBounds(left, top, right, bottom);
 
             if (isCollision()) {
                 this.collidedParticles.add(particleIdx);
@@ -473,23 +495,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         switch (v.getId()) {
             // UP BUTTON
             case R.id.button1: {
-                Toast.makeText(getApplication(), "UP", Toast.LENGTH_SHORT).show();
-                Rect r = drawable.getBounds();
-                drawable.setBounds(r.left,r.top-20,r.right,r.bottom-20);
-                textView.setText("\n\tMove Up" + "\n\tTop Margin = "
-                        + drawable.getBounds().top);
-                this.updateParticles();
-
-                this.calculateProbability();
-                this.resampleParticles();
-
-                // redrawing of the object
-                canvas.drawColor(Color.WHITE);
-
-                for(ShapeDrawable wall : walls) {
-                    wall.draw(canvas);
-                }
-                this.drawParticles(this.canvas);
+                this.recalc();
 
                 break;
             }
