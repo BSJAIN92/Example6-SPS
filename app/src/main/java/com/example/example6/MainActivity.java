@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.moment.*;
 import org.apache.commons.math3.stat.descriptive.rank.*;
 
@@ -60,7 +59,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     /**
      * The buttons.
      */
-    private Button up, left, right, down;
+    private Button switchUser, left, right, down;
     /**
      * The text view.
      */
@@ -97,6 +96,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private int mLastAccuracy;
 
     private boolean processing = false;
+    private boolean activated = false;
 
     private Set<Integer> collidedParticles;
 
@@ -130,18 +130,16 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         lastTime =  System.currentTimeMillis();
 
         // set the buttons
-        up = (Button) findViewById(R.id.button1);
-        right = (Button) findViewById(R.id.button3);
+        switchUser = (Button) findViewById(R.id.button1);
         down = (Button) findViewById(R.id.button4);
         left = (Button) findViewById(R.id.button2);
         // set the text view
         textView = (TextView) findViewById(R.id.textView1);
 
         // set listeners
-        up.setOnClickListener(this);
+        switchUser.setOnClickListener(this);
         down.setOnClickListener(this);
         left.setOnClickListener(this);
-        right.setOnClickListener(this);
 
         // get the screen dimensions
         Display display = getWindowManager().getDefaultDisplay();
@@ -150,6 +148,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         int width = size.x;
         int height = size.y;
 
+        this.setRoomParticles();
 
         walls = new ArrayList<>();
         wallsBounds = new ArrayList<int[]>();
@@ -207,22 +206,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.canvas.scale(scale,scale);
         canvasView.setImageBitmap(blankBitmap);
 
-        // draw the objects
-
         for(ShapeDrawable wall : walls) {
             wall.draw(canvas);
         }
-
-        this.setRoomParticles();
-
-        this.setParticles();
-
-        this.drawParticles(canvas);
-
-        left.setEnabled(false);
-        right.setEnabled(false);
-        down.setEnabled(false);
-
     }
 
     @Override
@@ -235,6 +221,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        if (activated == false) {
+            return;
+        }
         long currentTime = System.currentTimeMillis();
         if (event.sensor == rotationSensor) {
             float[] rotationMatrix = new float[9];
@@ -362,7 +351,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     }
 
 
-    public void setParticles(){
+    public void resetParticles(){
 
         this.Particles = new ArrayList<int[]>();
 
@@ -516,37 +505,32 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         double distance = 120;
         double direction = 0.5;
         switch (v.getId()) {
-            // UP BUTTON
-            case R.id.button1: {
-                this.recalc();
-
-                break;
-            }
-            // DOWN BUTTON
-            case R.id.button4: {
-                Toast.makeText(getApplication(), "DOWN", Toast.LENGTH_SHORT).show();
-                Rect r = drawable.getBounds();
-                drawable.setBounds(r.left,r.top+20,r.right,r.bottom+20);
-                textView.setText("\n\tMove Down" + "\n\tTop Margin = "
-                        + drawable.getBounds().top);
-                break;
-            }
-            // LEFT BUTTON
+            // init beleive
             case R.id.button2: {
-                Toast.makeText(getApplication(), "LEFT", Toast.LENGTH_SHORT).show();
-                Rect r = drawable.getBounds();
-                drawable.setBounds(r.left-20,r.top,r.right-20,r.bottom);
-                textView.setText("\n\tMove Left" + "\n\tLeft Margin = "
-                        + drawable.getBounds().left);
+                // draw the objects
+                activated = true;
+                canvas.drawColor(Color.WHITE);
+                for(ShapeDrawable wall : walls) {
+                    wall.draw(canvas);
+                }
+                this.collidedParticles.clear();
+                this.resetParticles();
+
+                this.drawParticles(canvas);
                 break;
             }
-            // RIGHT BUTTON
-            case R.id.button3: {
-                Toast.makeText(getApplication(), "RIGHT", Toast.LENGTH_SHORT).show();
-                Rect r = drawable.getBounds();
-                drawable.setBounds(r.left+20,r.top,r.right+20,r.bottom);
-                textView.setText("\n\tMove Right" + "\n\tLeft Margin = "
-                        + drawable.getBounds().left);
+            case R.id.button1: {
+                //private boolean marco = false;
+                //private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
+                if (marco) {
+                    marco = false;
+                    Toast.makeText(getApplication(), "Stef activated", Toast.LENGTH_SHORT).show();
+                    stride = strides[1];
+                } else {
+                    marco = true;
+                    Toast.makeText(getApplication(), "Marco activated", Toast.LENGTH_SHORT).show();
+                    stride = strides[0];
+                }
                 break;
             }
         }
