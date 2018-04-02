@@ -234,13 +234,13 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         if (event.sensor == stepDetection) {
             detectedSteps = detectedSteps + 1;
-            textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps + " ours "+ ourSteps);
+            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps);
             System.out.println("GOT STEP");
         }
 
         if (event.sensor == stepCounter) {
             countedSteps = (int) event.values[0];
-            textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps + " ours "+ ourSteps);
+            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps);
         }
 
         if (event.sensor == accSensor) {
@@ -255,7 +255,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                     }
 
                 }
-                textView.setText("Detected Steps: "+ detectedSteps+ " step counter: "+ countedSteps + " ours "+ ourSteps);
+                textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps);
                 //MagnitudesPast.clear();
                 //for(int i = 0; i < MagnitudesNow.size(); i++) {
                 //    MagnitudesPast.add(MagnitudesNow.get(i));
@@ -414,6 +414,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {14,355,580,0,1010,270});
         this.RoomParticles.add(new int[] {15,231,0,0,580,130,82,440,130,580,320});
 
+        this.RoomParticles.add(new int[] {16,279,1010,270,1240,690});
+
     }
 
     private void updateParticles() {
@@ -524,11 +526,11 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 //private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
                 if (marco) {
                     marco = false;
-                    Toast.makeText(getApplication(), "Stef activated", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(), "User is Stef", Toast.LENGTH_SHORT).show();
                     stride = strides[1];
                 } else {
                     marco = true;
-                    Toast.makeText(getApplication(), "Marco activated", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(), "User is Marco", Toast.LENGTH_SHORT).show();
                     stride = strides[0];
                 }
                 break;
