@@ -614,6 +614,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             case R.id.button4: {
                 //private boolean marco = false;
                 //private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
+                canvasView.invalidate();
 
                 canvas.drawColor(Color.WHITE);
                 if (floor3) {
@@ -626,6 +627,14 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                     this.setRoomParticlesFloor3();
                     this.setWalls3();
                     Toast.makeText(getApplication(), "Floor 3 activated", Toast.LENGTH_SHORT).show();
+                }
+
+                walls.clear();
+
+                for(int[] wallBound : wallsBounds) {
+                    ShapeDrawable shape = new ShapeDrawable(new RectShape());
+                    shape.setBounds(wallBound[0],wallBound[1],wallBound[2],wallBound[3]);
+                    walls.add(shape);
                 }
 
 
