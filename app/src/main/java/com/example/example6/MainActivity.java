@@ -429,14 +429,28 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private void updateParticles() {
         double direction = latestAngle;
-        double distance = stride;
+        double distance = stride * 2;
+        double variance = 0.25;
 
         for(int particleIdx = 0; particleIdx < this.Particles.size(); particleIdx++) {
             int[] particle = this.Particles.get(particleIdx);
+
+            // variance in direction and distance
+            double newdistance = ThreadLocalRandom.current().nextDouble(distance * 0.9, distance * 1.1);
+            double newdirection = ThreadLocalRandom.current().nextDouble(direction - 0.5, direction + 0.5);
+
             int prevX = particle[0];
             int prevY = particle[1];
-            int newX = particle[0] + (int) (distance * Math.sin(direction));
-            int newY = particle[1] + (int) (distance * Math.cos(direction));
+            int newX = particle[0] + (int) (newdistance * Math.sin(newdirection));
+            int newY = particle[1] + (int) (newdistance * Math.cos(newdirection));
+
+            //variance in x and y
+            /*double factor = ThreadLocalRandom.current().nextDouble(0, variance);
+            int diffX = (int) ((newX - prevX) * factor);
+            int diffY = (int) ((newY - prevY) * factor);
+            newX = newX + diffX;
+            newY = newY + diffY;*/
+
             this.Particles.set(particleIdx, new int[] {newX, newY, particle[2]});
             int left = 0;
             int right = 0;
