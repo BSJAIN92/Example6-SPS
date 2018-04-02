@@ -52,6 +52,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     // Marco, 1.75m, Stef: 1.82m.
     // http://livehealthy.chron.com/determine-stride-pedometer-height-weight-4518.html
     private boolean marco = false;
+    private boolean floor3 = false;
     private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
     private double stride = strides[0];
     private double latestAngle = 0.0;
@@ -148,11 +149,11 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         int width = size.x;
         int height = size.y;
 
-        this.setRoomParticles();
+        this.setRoomParticlesFloor4();
 
         walls = new ArrayList<>();
         wallsBounds = new ArrayList<int[]>();
-        this.setWalls3();
+        this.setWall4();
 
         this.propabilityRoom = new HashMap<Integer, Integer>();
 
@@ -219,7 +220,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private void setWalls3() {
         wallsBounds.clear();
         wallsBounds.add(new int[]{0,0,2600,5});
-        wallsBounds.add(new int[]{1950,500,2600,505});
+        wallsBounds.add(new int[]{2170,500,2600,505});
         wallsBounds.add(new int[]{1830,1230,2170,1235});
         wallsBounds.add(new int[]{1600,920,1830,925});
         wallsBounds.add(new int[]{1260,920,1600,925});
@@ -228,14 +229,14 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         wallsBounds.add(new int[]{0,1440,2600,1445});
         wallsBounds.add(new int[]{180,690,440,695});
         wallsBounds.add(new int[]{440,690,800,695});
-        wallsBounds.add(new int[]{1010,690,1240,695});
+
         wallsBounds.add(new int[]{1240,690,1820,695});
         wallsBounds.add(new int[]{1380,130,1820,135});
         wallsBounds.add(new int[]{580,270,800,275});
         wallsBounds.add(new int[]{1010,270,1240,275});
-        wallsBounds.add(new int[]{1240,270,1380,275});
-        wallsBounds.add(new int[]{440,320,580,325});
-        wallsBounds.add(new int[]{560,520,180,525});
+        wallsBounds.add(new int[]{1240,550,1380,555});
+        wallsBounds.add(new int[]{440,520,580,525});
+        wallsBounds.add(new int[]{0,360,440,365});
         wallsBounds.add(new int[]{0,0,5,1440});
         wallsBounds.add(new int[]{2600,0,2605,1440});
         wallsBounds.add(new int[]{2170,500,2175,850});
@@ -254,8 +255,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         wallsBounds.add(new int[]{1240,270,1245,275});
         wallsBounds.add(new int[]{440,320,445,325});
         wallsBounds.add(new int[]{0,520,5,525});
-        wallsBounds.add(new int[]{180,520,185,850});
-        wallsBounds.add(new int[]{580,270,585,690});
+        wallsBounds.add(new int[]{180,360,185,690});
+        wallsBounds.add(new int[]{800,270,805,690});
     }
 
     @Override
@@ -438,7 +439,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         }
     }
 
-    public void setRoomParticles(){
+    public void setRoomParticlesFloor4(){
 
         this.totalParticles = 108;
 
@@ -462,6 +463,32 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {15,231,0,0,580,130,82,440,130,580,320});
 
         this.RoomParticles.add(new int[] {16,279,1010,270,1240,690});
+
+    }
+
+    public void setRoomParticlesFloor3(){
+
+        this.RoomParticles = new ArrayList<int[]>();
+
+        this.RoomParticles.add(new int[] {18,176,0,360,180,690});
+        this.RoomParticles.add(new int[] {102,123,0,690,180,920});
+        this.RoomParticles.add(new int[] {103,504,180,690,920,920});
+        this.RoomParticles.add(new int[] {104,232,920,690,1260,920});
+
+        this.RoomParticles.add(new int[] {106,381,1260,690,1820,920});
+        this.RoomParticles.add(new int[] {152,116,1240,270,1380,550});
+        this.RoomParticles.add(new int[] {108,73,1820,850,2170,920,312,1830,920,2170,1230});
+
+        this.RoomParticles.add(new int[] {19,962,1950,0,2600,500});
+        this.RoomParticles.add(new int[] {110,363,1820,500,2170,850});
+        this.RoomParticles.add(new int[] {111,143,1820,130,1950,500});
+        this.RoomParticles.add(new int[] {112,220,1380,0,1950,130});
+        this.RoomParticles.add(new int[] {113,296,1010,0,1380,270});
+        this.RoomParticles.add(new int[] {114,344,580,0,1010,270});
+        this.RoomParticles.add(new int[] {151,261,800,270,1010,690});
+        this.RoomParticles.add(new int[] {15,216,440,0,580,520});
+        this.RoomParticles.add(new int[] {17,286,1010,270,1240,690});
+
 
     }
 
@@ -559,6 +586,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 // draw the objects
                 activated = true;
                 canvas.drawColor(Color.WHITE);
+
                 for(ShapeDrawable wall : walls) {
                     wall.draw(canvas);
                 }
@@ -579,6 +607,30 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                     marco = true;
                     Toast.makeText(getApplication(), "User is Marco", Toast.LENGTH_SHORT).show();
                     stride = strides[0];
+                }
+                break;
+            }
+
+            case R.id.button4: {
+                //private boolean marco = false;
+                //private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
+
+                canvas.drawColor(Color.WHITE);
+                if (floor3) {
+                    floor3 = false;
+                    this.setRoomParticlesFloor4();
+                    this.setWall4();
+                    Toast.makeText(getApplication(), "Floor 4 activated", Toast.LENGTH_SHORT).show();
+                } else {
+                    floor3 = true;
+                    this.setRoomParticlesFloor3();
+                    this.setWalls3();
+                    Toast.makeText(getApplication(), "Floor 3 activated", Toast.LENGTH_SHORT).show();
+                }
+
+
+                for(ShapeDrawable wall : walls) {
+                    wall.draw(canvas);
                 }
                 break;
             }
