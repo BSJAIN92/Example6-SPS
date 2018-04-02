@@ -152,10 +152,36 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         walls = new ArrayList<>();
         wallsBounds = new ArrayList<int[]>();
+        this.setWalls3();
+
         this.propabilityRoom = new HashMap<Integer, Integer>();
 
         this.collidedParticles = new HashSet<Integer>();
 
+        for(int[] wallBound : wallsBounds) {
+            ShapeDrawable shape = new ShapeDrawable(new RectShape());
+            shape.setBounds(wallBound[0],wallBound[1],wallBound[2],wallBound[3]);
+            walls.add(shape);
+        }
+
+        float scale = (float) width/2700;
+
+        // create a canvas
+        this.canvasView = (ImageView) findViewById(R.id.canvas);
+        Bitmap blankBitmap = Bitmap.createBitmap(width,height, Bitmap.Config.ARGB_8888);
+
+        canvas = new Canvas(blankBitmap);
+
+        this.canvas.scale(scale,scale);
+        canvasView.setImageBitmap(blankBitmap);
+
+        for(ShapeDrawable wall : walls) {
+            wall.draw(canvas);
+        }
+    }
+
+    private void setWall4() {
+        wallsBounds.clear();
         wallsBounds.add(new int[]{0,0,2600,5});
         wallsBounds.add(new int[]{1950,500,2600,505});
         wallsBounds.add(new int[]{1830,1230,2170,1235});
@@ -188,27 +214,48 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         wallsBounds.add(new int[]{1240,270,1245,690});
         wallsBounds.add(new int[]{1380,130,1385,690});
         wallsBounds.add(new int[]{1950,0,1955,500});
+    }
 
-        for(int[] wallBound : wallsBounds) {
-            ShapeDrawable shape = new ShapeDrawable(new RectShape());
-            shape.setBounds(wallBound[0],wallBound[1],wallBound[2],wallBound[3]);
-            walls.add(shape);
-        }
-
-        float scale = (float) width/2700;
-
-        // create a canvas
-        this.canvasView = (ImageView) findViewById(R.id.canvas);
-        Bitmap blankBitmap = Bitmap.createBitmap(width,height, Bitmap.Config.ARGB_8888);
-
-        canvas = new Canvas(blankBitmap);
-
-        this.canvas.scale(scale,scale);
-        canvasView.setImageBitmap(blankBitmap);
-
-        for(ShapeDrawable wall : walls) {
-            wall.draw(canvas);
-        }
+    private void setWalls3() {
+        wallsBounds.clear();
+        wallsBounds.add(new int[]{0,0,2600,5});
+        wallsBounds.add(new int[]{1950,500,2600,505});
+        wallsBounds.add(new int[]{1830,1230,2170,1235});
+        wallsBounds.add(new int[]{1600,920,1830,925});
+        wallsBounds.add(new int[]{1260,920,1600,925});
+        wallsBounds.add(new int[]{920,920,1260,925});
+        wallsBounds.add(new int[]{0,920,920,925});
+        wallsBounds.add(new int[]{0,1440,2600,1445});
+        wallsBounds.add(new int[]{180,690,440,695});
+        wallsBounds.add(new int[]{440,690,800,695});
+        wallsBounds.add(new int[]{1010,690,1240,695});
+        wallsBounds.add(new int[]{1240,690,1820,695});
+        wallsBounds.add(new int[]{1380,130,1820,135});
+        wallsBounds.add(new int[]{580,270,800,275});
+        wallsBounds.add(new int[]{1010,270,1240,275});
+        wallsBounds.add(new int[]{1240,270,1380,275});
+        wallsBounds.add(new int[]{440,320,580,325});
+        wallsBounds.add(new int[]{560,520,180,525});
+        wallsBounds.add(new int[]{0,0,5,1440});
+        wallsBounds.add(new int[]{2600,0,2605,1440});
+        wallsBounds.add(new int[]{2170,500,2175,850});
+        wallsBounds.add(new int[]{2170,850,2175,1080});
+        wallsBounds.add(new int[]{2170,1080,2175,1440});
+        wallsBounds.add(new int[]{1820,130,1825,695});
+        wallsBounds.add(new int[]{1830,920,1835,1440});
+        wallsBounds.add(new int[]{440,0,445,690});
+        wallsBounds.add(new int[]{580,270,585,690});
+        wallsBounds.add(new int[]{1010,270,1015,690});
+        wallsBounds.add(new int[]{1240,270,1245,690});
+        wallsBounds.add(new int[]{1380,130,1385,690});
+        wallsBounds.add(new int[]{1950,0,1955,500});
+        wallsBounds.add(new int[]{440,270,445,275});
+        wallsBounds.add(new int[]{1010,270,1015,275});
+        wallsBounds.add(new int[]{1240,270,1245,275});
+        wallsBounds.add(new int[]{440,320,445,325});
+        wallsBounds.add(new int[]{0,520,5,525});
+        wallsBounds.add(new int[]{180,520,185,850});
+        wallsBounds.add(new int[]{580,270,585,690});
     }
 
     @Override
