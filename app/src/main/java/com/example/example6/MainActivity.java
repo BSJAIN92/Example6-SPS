@@ -25,6 +25,7 @@ import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,6 +94,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private int detectedSteps = 0;
     private int countedSteps = 0;
     private int ourSteps = 0;
+    private int room = 0;
+    private String probability = "";
 
     private int mLastAccuracy;
 
@@ -282,13 +285,13 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         if (event.sensor == stepDetection) {
             detectedSteps = detectedSteps + 1;
-            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps);
-            System.out.println("GOT STEP");
+            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
+            //System.out.println("GOT STEP");
         }
 
         if (event.sensor == stepCounter) {
             countedSteps = (int) event.values[0];
-            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps);
+            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
         }
 
         if (event.sensor == accSensor) {
@@ -303,7 +306,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                     }
 
                 }
-                textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps);
+                textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
                 //MagnitudesPast.clear();
                 //for(int i = 0; i < MagnitudesNow.size(); i++) {
                 //    MagnitudesPast.add(MagnitudesNow.get(i));
@@ -358,7 +361,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         double max = maximum.evaluate(toDoublePrimitive(MagnitudesNow));
         double mu = mean.evaluate(toDoublePrimitive(MagnitudesNow));
         double updatedMag = max -  mu;
-        System.out.println(updatedMag);
+        //System.out.println(updatedMag);
 
         if (updatedMag > 2 && updatedMag < 5) {
             return true;
@@ -650,7 +653,6 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private void resampleParticles() {
 
         int maxValue = 0;
-        int room = 0;
 
         for (Map.Entry<Integer, Integer> entry : this.propabilityRoom.entrySet()){
             if (entry.getValue() > maxValue){
@@ -658,6 +660,10 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 maxValue = entry.getValue();
             }
         }
+
+        DecimalFormat df = new DecimalFormat("#.00");
+        probability = df.format((double) maxValue / this.Particles.size() * 100);
+        textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
 
         List<Integer> validLocations = new ArrayList<Integer>();
 
@@ -732,7 +738,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                     }
 
                 }
-                System.out.println(this.propabilityRoom.get(roomNr));
+                //System.out.println(this.propabilityRoom.get(roomNr));
 
 
             }
