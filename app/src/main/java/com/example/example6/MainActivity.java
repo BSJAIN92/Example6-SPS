@@ -98,6 +98,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private int TIME_WINDOW = 650;
 
     private boolean standing = true;
+    private boolean detection = false;
 
     private int detectedSteps = 0;
     private int countedSteps = 0;
@@ -107,7 +108,6 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private int mLastAccuracy;
 
-    private boolean processing = false;
     private boolean activated = false;
 
     private Set<Integer> collidedParticles;
@@ -292,29 +292,37 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         }
 
         if (event.sensor == stepDetection) {
+            detection = true;
+            // stop walking detection
+            // update particles
+            this.recalc();
             detectedSteps = detectedSteps + 1;
-            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
+            //textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
             //System.out.println("GOT STEP");
         }
 
         if (event.sensor == stepCounter) {
             countedSteps = (int) event.values[0];
-            textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
+            //textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
         }
 
         if (event.sensor == accSensor) {
+
             float[] acc = event.values;
             double magnitude = Math.sqrt((Math.pow(acc[0], 2) + Math.pow(acc[1], 2) + Math.pow(acc[2], 2)));
             MagnitudesNow.add(magnitude);
             if(currentTime - lastTime> TIME_WINDOW) {
                 if (processMagnitudes()){
-                    ourSteps = ourSteps + 1;
-                    if (ourSteps % 2 == 0){
+                    // if detection count is deactivated
+                    if (detection == false) {
                         this.recalc();
                     }
+                    ourSteps = ourSteps + 1;
 
+                } else {
+                    detection = false;
                 }
-                textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
+                //textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
                 //MagnitudesPast.clear();
                 //for(int i = 0; i < MagnitudesNow.size(); i++) {
                 //    MagnitudesPast.add(MagnitudesNow.get(i));
@@ -328,11 +336,12 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     }
 
     private void recalc() {
-        if (processing) {
+        this.updateParticles();
+
+        if (this.Particles.size() == this.collidedParticles.size()) {
+            Toast.makeText(getApplication(), "All particles collided :(", Toast.LENGTH_SHORT).show();
             return;
         }
-        processing = true;
-        this.updateParticles();
 
         this.calculateProbability();
         this.resampleParticles();
@@ -348,7 +357,6 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             wall.draw(canvas);
         }
         this.drawParticles(this.canvas);
-        processing = false;
     }
 
     private boolean walkingDetection(double linearAcc) {
@@ -371,7 +379,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         double updatedMag = max -  mu;
         //System.out.println(updatedMag);
 
-        if (updatedMag > 2 && updatedMag < 5) {
+        if (updatedMag > 2.5 && updatedMag < 5) {
             return true;
         }
         return false;
@@ -505,7 +513,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private void updateParticles() {
         double direction = latestAngle - Math.toRadians(offsetRotation);
-        double distance = stride * 2;
+        double distance = stride;
         double variance = 0.25;
 
         for(int particleIdx = 0; particleIdx < this.Particles.size(); particleIdx++) {
@@ -691,7 +699,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         DecimalFormat df = new DecimalFormat("#.00");
         probability = df.format((double) maxValue / this.Particles.size() * 100);
-        textView.setText("Detected Steps: "+ detectedSteps+ " \nstep counter: "+ countedSteps + " \nours "+ ourSteps + " room " +room + " with " + probability);
+        textView.setText("Room " +room + " with " + probability + "% of all Particles");
 
         List<Integer> validLocations = new ArrayList<Integer>();
 
