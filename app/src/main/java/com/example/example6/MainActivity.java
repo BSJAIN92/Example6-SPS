@@ -697,9 +697,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             if (this.collidedParticles.contains(i)) {
                 continue;
             }
-            if (this.Particles.get(i)[2] == room) {
-                validLocations.add(i);
-            }
+            validLocations.add(i);
         }
 
         for (int idx : this.collidedParticles) {
