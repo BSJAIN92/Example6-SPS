@@ -609,7 +609,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 if (t.length() > 0) {
                     varDistance = Double.parseDouble(tmp.getText().toString());
                 }
-                
+
                 tmp = findViewById(R.id.varRotation);
                 t = tmp.getText().toString();
                 if (t.length() > 0) {
