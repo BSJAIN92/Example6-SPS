@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +59,12 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private double stride = strides[0];
     private double latestAngle = 0.0;
 
+    // offsets
+
+    private double offsetRotation = 0.0;
+    private double varDistance = 0.1;
+    private double varDirection = 0.5;
+
     /**
      * The buttons.
      */
@@ -74,6 +81,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
      * The canvas.
      */
     private Canvas canvas;
+    private EditText editText;
     /**
      * The walls.
      */
@@ -496,7 +504,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     }
 
     private void updateParticles() {
-        double direction = latestAngle;
+        double direction = latestAngle - Math.toRadians(offsetRotation);
         double distance = stride * 2;
         double variance = 0.25;
 
@@ -504,8 +512,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             int[] particle = this.Particles.get(particleIdx);
 
             // variance in direction and distance
-            double newdistance = ThreadLocalRandom.current().nextDouble(distance * 0.9, distance * 1.1);
-            double newdirection = ThreadLocalRandom.current().nextDouble(direction - 0.5, direction + 0.5);
+            double newdistance = ThreadLocalRandom.current().nextDouble(distance * (1.0 - varDistance), distance * (1.0 + varDistance));
+            double newdirection = ThreadLocalRandom.current().nextDouble(direction - varDirection, direction + varDirection);
 
             int prevX = particle[0];
             int prevY = particle[1];
@@ -589,6 +597,24 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 // draw the objects
                 activated = true;
                 canvas.drawColor(Color.WHITE);
+
+                EditText tmp = findViewById(R.id.offsetRotation);
+                String t = tmp.getText().toString();
+                if (t.length() > 0) {
+                    offsetRotation = Double.parseDouble(tmp.getText().toString());
+                }
+
+                tmp = findViewById(R.id.varDistance);
+                t = tmp.getText().toString();
+                if (t.length() > 0) {
+                    varDistance = Double.parseDouble(tmp.getText().toString());
+                }
+                
+                tmp = findViewById(R.id.varRotation);
+                t = tmp.getText().toString();
+                if (t.length() > 0) {
+                    varDirection = Math.toRadians(Double.parseDouble(tmp.getText().toString()));
+                }
 
                 for(ShapeDrawable wall : walls) {
                     wall.draw(canvas);
