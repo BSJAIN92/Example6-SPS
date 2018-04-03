@@ -40,30 +40,79 @@
         android:layout_alignParentBottom="true"
         android:text="Switch" />
 
-    <EditText
-        android:id="@+id/offsetRotation"
-        android:layout_width="30dp"
+    <Button
+        android:id="@+id/buttonLocate"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"/>
-    <EditText
-        android:id="@+id/varDistance"
-        android:layout_width="30dp"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/offsetRotation"
-        android:inputType="numberDecimal"/>
-    <EditText
-        android:id="@+id/varRotation"
-        android:layout_width="30dp"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/varDistance"
-        android:inputType="numberDecimal"/>
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="200dp"
-        android:layout_height="80dp"
         android:layout_above="@id/button2"
+        android:layout_centerHorizontal="true"
+        android:text="Bayesian Locate"
+        />
 
-        android:layout_marginTop="10dp"
-        android:text="" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_above="@id/button2"
+        android:layout_toLeftOf="@id/buttonLocate"
+
+        android:weightSum="3">
+
+        <EditText
+            android:id="@+id/offsetRotation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:layout_weight="1"
+        />
+
+        <EditText
+            android:id="@+id/varDistance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/offsetRotation"
+            android:inputType="numberDecimal"
+            android:layout_weight="1"/>
+        <EditText
+            android:id="@+id/varRotation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/varDistance"
+            android:inputType="numberDecimal"
+            android:layout_weight="1"/>
+
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_above="@id/buttonLocate"
+        android:weightSum="1">
+
+        <TextView
+        android:id="@+id/textView1"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_above="@id/buttonLocate"
+        android:layout_marginBottom="10dp"
+        android:text=""
+        android:layout_weight="0.5"
+        />
+
+        <TextView
+            android:id="@+id/feedback"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_above="@id/buttonLocate"
+            android:layout_marginBottom="10dp"
+            android:text=""
+            android:layout_weight="0.5"
+            />
+
+
+    </LinearLayout>
+
+
 </RelativeLayout>

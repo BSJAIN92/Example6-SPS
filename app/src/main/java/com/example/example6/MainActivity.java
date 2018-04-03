@@ -10,8 +10,11 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
 import android.content.Context;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.hardware.Sensor;
+import android.os.Handler;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,15 +29,25 @@ import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.stat.descriptive.moment.*;
 import org.apache.commons.math3.stat.descriptive.rank.*;
 
@@ -50,6 +63,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private Sensor stepCounter;
     private Sensor accSensor;
     private Sensor linearSensor;
+    private WifiManager wifiManager;
 
     // Marco, 1.75m, Stef: 1.82m.
     // http://livehealthy.chron.com/determine-stride-pedometer-height-weight-4518.html
@@ -58,6 +72,13 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
     private double stride = strides[0];
     private double latestAngle = 0.0;
+
+    private List<String> changeFlag;
+    private HashMap<String, HashMap<String, List<Float>>> bayesianData;
+    private HashMap <String, BigDecimal> finalProbability;
+    private BigDecimal TotalCells = BigDecimal.valueOf(4);
+    private BigDecimal TotalDirections = BigDecimal.valueOf(1);
+    private BigDecimal InitialProbability = BigDecimal.valueOf(1).divide( TotalCells.multiply(TotalDirections));
 
     // offsets
 
@@ -68,11 +89,12 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     /**
      * The buttons.
      */
-    private Button switchUser, left, right, down;
+    private Button switchUser, left, right, down, buttonLocate;
     /**
      * The text view.
      */
     private TextView textView;
+    private TextView feedback;
     /**
      * The shape.
      */
@@ -119,6 +141,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private long lastTime;
 
+    private boolean waiting = false;
+
     private List<ShapeDrawable> walls;
     private List<int[]> wallsBounds;
 
@@ -126,6 +150,15 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        //Bayesian
+        bayesianData =  readBayesianData();
+        System.out.print(bayesianData);
+
+
+
+        //Particle Filter
         setContentView(R.layout.activity_main);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
@@ -145,13 +178,16 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         switchUser = (Button) findViewById(R.id.button1);
         down = (Button) findViewById(R.id.button4);
         left = (Button) findViewById(R.id.button2);
+        buttonLocate = (Button) findViewById(R.id.buttonLocate);
         // set the text view
         textView = (TextView) findViewById(R.id.textView1);
+        feedback = (TextView) findViewById(R.id.feedback);
 
         // set listeners
         switchUser.setOnClickListener(this);
         down.setOnClickListener(this);
         left.setOnClickListener(this);
+        buttonLocate.setOnClickListener(this);
 
         // get the screen dimensions
         Display display = getWindowManager().getDefaultDisplay();
@@ -191,6 +227,95 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             wall.draw(canvas);
         }
     }
+
+    public HashMap<String, HashMap<String, List<Float>>> readBayesianData () {
+
+        HashMap<String, HashMap<String, List<Float>>> trainedBayesianData;
+        HashMap<String, List<Float>> musigmaCell;
+        trainedBayesianData = new HashMap<String, HashMap<String, List<Float>>>();
+        LinkedList<Float> musigma;
+
+        finalProbability = new HashMap<String, BigDecimal>();
+
+
+
+        String filename = "distribution_cleaned_new.csv";
+        File file = new File(getExternalFilesDir(null), filename);
+        FileInputStream inputStream;
+
+        String BSSID;
+        String cellName;
+        float mu;
+        float sigma;
+
+        try {
+
+            inputStream = new FileInputStream(file);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            try {
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    //trainedStrength  = new HashMap<String, List<Integer>>();
+
+                    musigmaCell = new HashMap<String, List<Float>>();
+                    musigma = new LinkedList<Float>();
+
+                    String[] RowData = line.split(",");
+                    cellName = RowData[0];
+                    BSSID = RowData[1];
+                    mu = Float.parseFloat(RowData[2]);
+                    sigma = Float.parseFloat(RowData[3]);
+
+                    if (sigma > 5.0){
+                        continue;
+                    }
+
+                    musigma.add(mu);
+                    musigma.add(sigma);
+
+                    musigmaCell.put(cellName, musigma);
+
+                    if (trainedBayesianData.containsKey(BSSID)) {
+                        trainedBayesianData.get(BSSID).put(cellName, musigma);
+                    } else {
+                        trainedBayesianData.put(BSSID, musigmaCell);
+
+                    }
+
+                    if (finalProbability.containsKey(cellName)){
+                        continue;
+                    }
+                    else {
+                        finalProbability.put(cellName, InitialProbability);
+                    }
+
+
+
+
+                }
+
+
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            inputStream.close();
+
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return trainedBayesianData;
+    }
+
 
     private void setWall4() {
         wallsBounds.clear();
@@ -284,6 +409,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             return;
         }
         long currentTime = System.currentTimeMillis();
+
+
+
         if (event.sensor == rotationSensor) {
             float[] rotationMatrix = new float[9];
             SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
@@ -337,6 +465,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private void recalc() {
         this.updateParticles();
+
+        this.locate();
 
         if (this.Particles.size() == this.collidedParticles.size()) {
             Toast.makeText(getApplication(), "All particles collided :(", Toast.LENGTH_SHORT).show();
@@ -606,6 +736,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 activated = true;
                 canvas.drawColor(Color.WHITE);
 
+                this.locate();
                 EditText tmp = findViewById(R.id.offsetRotation);
                 String t = tmp.getText().toString();
                 if (t.length() > 0) {
@@ -682,9 +813,210 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 }
                 break;
             }
+
+            case R.id.buttonLocate:{
+                this.locate();
+                break;
+            }
         }
 
     }
+
+    private void locate(){
+
+
+
+
+        // Set wifi manager.
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        // Start a wifi scan.
+        wifiManager.startScan();
+
+        // Store results in a list.
+        List<ScanResult> scanResults = wifiManager.getScanResults();
+        changeFlag = new LinkedList<String>();
+
+        //double NormalizationChangeTotal = 0.0;
+        double NormalizationTotal = 0;
+
+        HashMap<String, Integer> Votes = new HashMap<String, Integer>();
+
+        int count = 0;
+
+        for (ScanResult scanResult : scanResults) {
+            String detectedBSSID = scanResult.BSSID;
+            Integer detectedRSS = scanResult.level;
+
+            BigDecimal NormalizationChangeTotal = BigDecimal.valueOf(0.0);
+
+
+            //HashMap<String, HashMap<String, List<Float>>>
+
+            HashMap<String, List<Float>> cells = bayesianData.get(detectedBSSID);
+            if (!(cells == null /*|| cells.size() == 1*/)){
+                for (Map.Entry<String, List<Float>> cell: cells.entrySet()) {
+                    String cellName = cell.getKey();
+                    List<Float> musignma = cell.getValue();
+                    Float mu = musignma.get(0);
+                    Float sigma = musignma.get(1);
+                    //Get the gaussian probability value
+                    BigDecimal probablility = BigDecimal.valueOf(this.gaussian(detectedRSS, mu, sigma));
+                    //Update existing probability by multiplication
+                    BigDecimal updatedProbability = BigDecimal.valueOf(0.0);
+                    updatedProbability = finalProbability.get(cellName).multiply(probablility);
+                    finalProbability.put(cellName, updatedProbability);
+
+                    NormalizationChangeTotal = NormalizationChangeTotal.add(updatedProbability);
+                    //NormalizationTotal += 1;
+
+
+
+                    if (!changeFlag.contains(cellName)){
+                        changeFlag.add(cellName);
+                    }
+
+
+
+                }
+                count += 1;
+
+                /*
+                if (NormalizationTotal == 0.0){
+                    NormalizationTotal = NormalizationChangeTotal;
+                }else {
+                    NormalizationTotal = NormalizationTotal*NormalizationChangeTotal;
+                }
+                */
+
+            }
+            else {
+                continue;
+            }
+
+            for (String c:changeFlag ){
+                BigDecimal prob;
+                prob = finalProbability.get(c).divide(NormalizationChangeTotal, MathContext.DECIMAL128);
+                /*
+                if(prob.equals(1)) {
+                    System.out.print("test");
+                    System.out.println(finalProbability.get(c));
+                    System.out.println(NormalizationChangeTotal);
+                }
+                */
+                finalProbability.put(c, prob);
+
+
+
+
+            }
+
+            changeFlag.clear();
+
+            String Winner = "No Cell";
+            BigDecimal current = new BigDecimal(0);
+
+            for (Map.Entry<String, BigDecimal> f: finalProbability.entrySet()){
+                if(f.getValue().compareTo(current) == 1) {
+                    current = f.getValue();
+                    Winner = f.getKey();
+                }
+            }
+
+            if (Votes.containsKey(Winner)){
+                Votes.put(Winner, Votes.get(Winner)+1);
+            }
+            else {
+                Votes.put(Winner, 1);
+            }
+
+            for (Map.Entry<String, BigDecimal> f: finalProbability.entrySet()){
+                finalProbability.put(f.getKey(), InitialProbability);
+            }
+
+
+
+            //Normalize
+            //Normalization of only those cells whose values changed due to observation of the BSSID
+
+
+            //Replace existing probability with updated value
+            //finalProbability.put(cellName, updatedProbability);
+
+
+        }
+        //Double p = this.gaussian(-74, -75.0, 2.1);
+
+        //double c1 = finalProbability.get("C1") * p;
+
+        /*
+        for (String c:changeFlag ){
+            Double prob = finalProbability.get(c) / NormalizationTotal;
+            finalProbability.put(c, prob);
+
+        }
+
+        changeFlag.clear();
+        */
+
+
+        /*
+        String Winner = "No Cell";
+        BigDecimal current = new BigDecimal(0);
+
+        for (Map.Entry<String, BigDecimal> f: finalProbability.entrySet()){
+            if(f.getValue().compareTo(current) == 1) {
+                current = f.getValue();
+                Winner = f.getKey();
+            }
+        }
+        */
+
+        String FinalWinner = "No Cell";
+        Integer current = 0;
+
+        for (Map.Entry<String, Integer> f: Votes.entrySet()) {
+            if (f.getValue() > current) {
+                current = f.getValue();
+                FinalWinner = f.getKey();
+            }
+        }
+
+        this.feedback.setText("Bayesian: \nLocated Cell: " + FinalWinner);
+
+        for (Map.Entry<String, BigDecimal> f: finalProbability.entrySet()){
+            finalProbability.put(f.getKey(), InitialProbability);
+        }
+
+        buttonLocate.setEnabled(false);
+
+
+        /*Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                buttonLocate.setEnabled(true);
+                MainActivity.this.waiting = true;
+                //MainActivity.this.feedback.setText("Bayesian: \nWaiting for refresh!");
+            }
+        }, 5000);
+        */
+
+
+
+    }
+
+    private double gaussian(float observation, double mu, double sigma) {
+        double prob;
+
+        Gaussian g = new Gaussian(mu, sigma);
+
+        prob = g.value(observation);
+
+        return prob;
+    }
+
+
 
     private void resampleParticles() {
 
@@ -699,7 +1031,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         DecimalFormat df = new DecimalFormat("#.00");
         probability = df.format((double) maxValue / this.Particles.size() * 100);
-        textView.setText("Room " +room + " with " + probability + "% of all Particles");
+        textView.setText("Particle Filter: \nRoom " +room + " with " + probability + "% of all Particles");
 
         List<Integer> validLocations = new ArrayList<Integer>();
 
