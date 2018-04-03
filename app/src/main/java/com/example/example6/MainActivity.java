@@ -602,6 +602,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 String t = tmp.getText().toString();
                 if (t.length() > 0) {
                     offsetRotation = Double.parseDouble(tmp.getText().toString());
+                } else {
+                    offsetRotation = Math.toDegrees(latestAngle);
                 }
 
                 tmp = findViewById(R.id.varDistance);
