@@ -47,6 +47,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.koushikdutta.async.http.AsyncHttpClient;
+import com.koushikdutta.async.http.AsyncHttpClient.WebSocketConnectCallback;
+import com.koushikdutta.async.http.WebSocket;
+import com.koushikdutta.async.http.WebSocket.StringCallback;
+import com.koushikdutta.async.callback.DataCallback;
+import com.koushikdutta.async.ByteBufferList;
+import com.koushikdutta.async.DataEmitter;
+
 import org.apache.commons.math3.analysis.function.Gaussian;
 import org.apache.commons.math3.stat.descriptive.moment.*;
 import org.apache.commons.math3.stat.descriptive.rank.*;
@@ -85,6 +93,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private double offsetRotation = 0.0;
     private double varDistance = 0.1;
     private double varDirection = 0.5;
+
+    private WebSocket connection;
 
     /**
      * The buttons.
@@ -126,6 +136,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private int countedSteps = 0;
     private int ourSteps = 0;
     private int room = 0;
+    private int othersRoom = 0;
     private String probability = "";
 
     private int mLastAccuracy;
@@ -226,6 +237,18 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         for(ShapeDrawable wall : walls) {
             wall.draw(canvas);
         }
+
+        AsyncHttpClient.getDefaultInstance().websocket("http://dry-chamber-74956.herokuapp.com", null, new WebSocketConnectCallback() {
+            @Override
+            public void onCompleted(Exception ex, WebSocket webSocket) {
+                connection = webSocket;
+                connection.setStringCallback(new StringCallback() {
+                    public void onStringAvailable(String s) {
+                        MainActivity.this.othersRoom = Integer.parseInt(s);
+                    }
+                });
+            }
+        });
     }
 
     public HashMap<String, HashMap<String, List<Float>>> readBayesianData () {
@@ -545,6 +568,22 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             drawable.draw(canvas);
         }
 
+        // draw other participant
+        //this.RoomParticles.add(new int[] {8,75,1820,850,2170,920,322,1830,920,2170,1230});
+        if (othersRoom == 0) {
+            return;
+        }
+        int[] other = this.RoomParticles.get(othersRoom - 1);
+        // 8,75,1820,850,2170,920,322
+        // 0, 1,   2,  3,   4,  5
+        int x =  other[2] + ((other[4] - other[2]) / 2);
+        int y = other[3] + ((other[5] - other[3]) / 2);
+
+        drawable = new ShapeDrawable(new OvalShape());
+        drawable.getPaint().setColor(Color.RED);
+        int radius = 20;
+        drawable.setBounds(x - radius, y - radius, x + radius, y + radius);
+        drawable.draw(canvas);
     }
 
 
@@ -1031,7 +1070,13 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         DecimalFormat df = new DecimalFormat("#.00");
         probability = df.format((double) maxValue / this.Particles.size() * 100);
+        double prob = (double) maxValue / this.Particles.size() * 100;
+        probability = df.format(prob);
         textView.setText("Particle Filter: \nRoom " +room + " with " + probability + "% of all Particles");
+
+        if (prob > 50.0 && connection != null) {
+            connection.send(room + "");
+        }
 
         List<Integer> validLocations = new ArrayList<Integer>();
 
