@@ -1071,7 +1071,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 FinalWinner = f.getKey();
             }
         }
-        int room = Integer.parseInt(FinalWinner.substring(1, FinalWinner.length()));
+        if (FinalWinner != "No Cell") {
+            int room = Integer.parseInt(FinalWinner.substring(1, FinalWinner.length()));
+        }
 
         // detect floor change
         boolean floor3 = bayesianRoom <= 16 && room >=17;
