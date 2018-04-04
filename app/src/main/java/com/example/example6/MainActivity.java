@@ -94,6 +94,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private double varDistance = 0.1;
     private double varDirection = 0.5;
 
+    private int bayesianRoom = 0;
+
     private WebSocket connection;
 
     /**
@@ -418,6 +420,54 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         wallsBounds.add(new int[]{800,270,805,690});
     }
 
+
+    private void switchFloor() {
+        canvasView.invalidate();
+        int[] roomCoordinates;
+        int room;
+
+        canvas.drawColor(Color.WHITE);
+        if (floor3) {
+            floor3 = false;
+            this.setRoomParticlesFloor4();
+            roomCoordinates = new int[] {16,279,1010,270,1240,690};
+            room = 16;
+            this.setWall4();
+        } else {
+            floor3 = true;
+            this.setRoomParticlesFloor3();
+            roomCoordinates = new int[] {17,286,1010,270,1240,690};
+            room = 17;
+            this.setWalls3();
+        }
+
+        int x1, x2, y1, y2, Px, Py;
+        int boundary = 4;
+        y1 = roomCoordinates[3] + boundary;
+        x1 = roomCoordinates[2] + boundary;
+        x2 = roomCoordinates[4] - boundary;
+        y2 = roomCoordinates[5] - boundary;
+
+        for(int particleIdx = 0; particleIdx < Particles.size(); particleIdx++) {
+            Px = ThreadLocalRandom.current().nextInt(x1, x2+1);
+            Py = ThreadLocalRandom.current().nextInt(y1, y2+1);
+            int[] particle = new int[] {Px, Py, room};
+            Particles.set(particleIdx, particle);
+        }
+
+        walls.clear();
+
+        for(int[] wallBound : wallsBounds) {
+            ShapeDrawable shape = new ShapeDrawable(new RectShape());
+            shape.setBounds(wallBound[0],wallBound[1],wallBound[2],wallBound[3]);
+            walls.add(shape);
+        }
+
+
+        for(ShapeDrawable wall : walls) {
+            wall.draw(canvas);
+        }
+    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         if (mLastAccuracy != accuracy) {
@@ -1014,14 +1064,24 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         String FinalWinner = "No Cell";
         Integer current = 0;
 
+
         for (Map.Entry<String, Integer> f: Votes.entrySet()) {
             if (f.getValue() > current) {
                 current = f.getValue();
                 FinalWinner = f.getKey();
             }
         }
+        int room = Integer.parseInt(FinalWinner.substring(1, FinalWinner.length()));
+
+        // detect floor change
+        boolean floor3 = bayesianRoom <= 16 && room >=17;
+        boolean floor4 = bayesianRoom >= 17 && room <=16;
+        if (bayesianRoom != 0 && (floor3 || floor4)) {
+            switchFloor();
+        }
 
         this.feedback.setText("Bayesian: \nLocated Cell: " + FinalWinner);
+        bayesianRoom =room;
 
         for (Map.Entry<String, BigDecimal> f: finalProbability.entrySet()){
             finalProbability.put(f.getKey(), InitialProbability);
@@ -1077,6 +1137,10 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         if (prob > 50.0 && connection != null) {
             connection.send(room + "");
         }
+
+        /*if (prob > 75.0 && (room == 16 || room == 17)) {
+            this.switchFloor();
+        }*/
 
         List<Integer> validLocations = new ArrayList<Integer>();
 
