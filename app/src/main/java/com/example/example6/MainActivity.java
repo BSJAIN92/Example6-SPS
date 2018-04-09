@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,9 +85,14 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private List<String> changeFlag;
     private HashMap<String, HashMap<String, List<Float>>> bayesianData;
     private HashMap <String, BigDecimal> finalProbability;
-    private BigDecimal TotalCells = BigDecimal.valueOf(4);
-    private BigDecimal TotalDirections = BigDecimal.valueOf(1);
-    private BigDecimal InitialProbability = BigDecimal.valueOf(1).divide( TotalCells.multiply(TotalDirections));
+    //private BigDecimal TotalCells = BigDecimal.valueOf(19.0000);
+    private BigDecimal TotalCells = new BigDecimal(19.0000);
+    //private BigDecimal TotalDirections = BigDecimal.valueOf(4.0000);
+    private BigDecimal TotalDirections = new BigDecimal(4.0000);
+    private BigDecimal maxProb = new BigDecimal(1.0000);
+    private BigDecimal Total = new BigDecimal(String.valueOf(TotalCells.multiply(TotalDirections)));
+    //private BigDecimal InitialProbability = BigDecimal.valueOf(1.0000).divide(Total, RoundingMode.HALF_UP);
+    private BigDecimal InitialProbability = new BigDecimal(0.01315789473);
 
     // offsets
 
@@ -158,6 +164,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private List<ShapeDrawable> walls;
     private List<int[]> wallsBounds;
+
+    private String lastCell;
+    private String currentCell;
 
     private ImageView canvasView;
     @Override
@@ -264,7 +273,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
 
 
-        String filename = "distribution_cleaned_new.csv";
+        String filename = "F80processed.csv";
         File file = new File(getExternalFilesDir(null), filename);
         FileInputStream inputStream;
 
@@ -1072,7 +1081,12 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             }
         }
         if (FinalWinner != "No Cell") {
-            int room = Integer.parseInt(FinalWinner.substring(1, FinalWinner.length()));
+            if (FinalWinner.length() == 4){
+                int room = Integer.parseInt(FinalWinner.substring(1, 2));
+            }else{
+                int room = Integer.parseInt(FinalWinner.substring(2, 3));
+            }
+
         }
 
         // detect floor change
@@ -1089,7 +1103,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             finalProbability.put(f.getKey(), InitialProbability);
         }
 
-        buttonLocate.setEnabled(false);
+        //buttonLocate.setEnabled(false);
 
 
         /*Handler handler = new Handler();
