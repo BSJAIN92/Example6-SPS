@@ -1136,8 +1136,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         }
 
         // detect floor change
-        boolean floor3 = bayesianRoom <= 16 && currentRoom >=17;
-        boolean floor4 = bayesianRoom >= 17 && currentRoom <=16;
+        boolean floor3 = bayesianRoom == 16 && currentRoom ==17;
+        boolean floor4 = bayesianRoom == 17 && currentRoom ==16;
         if (bayesianRoom != 0 && (floor3 || floor4)) {
             floor3 = false;
             floor4 = false;
