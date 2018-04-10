@@ -12,6 +12,7 @@ import android.graphics.drawable.shapes.RectShape;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.hardware.Sensor;
 import android.os.Handler;
@@ -82,7 +83,6 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private double stride = strides[1];
     private double latestAngle = 0.0;
 
-    private List<String> changeFlag;
     private HashMap<String, HashMap<String, List<Float>>> bayesianData;
     private HashMap <String, BigDecimal> finalProbability;
     //private BigDecimal TotalCells = BigDecimal.valueOf(19.0000);
@@ -555,7 +555,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private void recalc() {
         this.updateParticles();
 
-        this.locate();
+        new Bayesian().execute();
 
         if (this.Particles.size() == this.collidedParticles.size()) {
             collidedParticles.clear();
@@ -903,7 +903,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 activated = true;
                 canvas.drawColor(Color.WHITE);
 
-                this.locate();
+                new Bayesian().execute();
                 EditText tmp = findViewById(R.id.offsetRotation);
                 String t = tmp.getText().toString();
                 if (t.length() > 0) {
@@ -1000,10 +1000,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     }
 
-    private void locate(){
-
-
-
+    private String locate(){
 
         // Set wifi manager.
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -1014,7 +1011,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         // Store results in a list.
         List<ScanResult> scanResults = wifiManager.getScanResults();
-        changeFlag = new LinkedList<String>();
+        List<String> changeFlag = new LinkedList<String>();
 
         //double NormalizationChangeTotal = 0.0;
         double NormalizationTotal = 0;
@@ -1183,7 +1180,6 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             switchFloor();
         }
 
-        this.feedback.setText("Bayesian: \nLocated Cell: " + FinalWinner);
         bayesianRoom = currentRoom;
 
         for (Map.Entry<String, BigDecimal> f: finalProbability.entrySet()){
@@ -1205,7 +1201,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         */
 
 
-
+        return FinalWinner;
     }
 
     private double gaussian(float observation, double mu, double sigma) {
@@ -1352,5 +1348,25 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private boolean isCollision(ShapeDrawable first, ShapeDrawable second) {
         Rect firstRect = new Rect(first.getBounds());
         return firstRect.intersect(second.getBounds());
+    }
+
+
+    class Bayesian extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(Void... arg0) {
+           return  MainActivity.this.locate();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            feedback.setText("Bayesian Result" + result);
+
+        }
     }
 }
