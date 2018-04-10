@@ -1135,6 +1135,34 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     private void resampleParticles() {
 
+        /*if (prob > 75.0 && (room == 16 || room == 17)) {
+            this.switchFloor();
+        }*/
+
+        List<Integer> validLocations = new ArrayList<Integer>();
+
+        for (int i = 0; i < this.Particles.size(); i++) {
+            if (this.collidedParticles.contains(i)) {
+                continue;
+            }
+            validLocations.add(i);
+        }
+
+        for (int idx : this.collidedParticles) {
+            int validIdx = ThreadLocalRandom.current().nextInt(0, validLocations.size());
+            int particleIdx = validLocations.get(validIdx);
+            int[] particle = this.Particles.get(particleIdx);
+            int roomNr = particle[2];
+            if (this.propabilityRoom.containsKey(roomNr)) {
+                this.propabilityRoom.put(roomNr, this.propabilityRoom.get(roomNr) + 1);
+            }
+            else {
+                this.propabilityRoom.put(roomNr, 1);
+            }
+            this.Particles.set(idx, particle.clone());
+        }
+        this.collidedParticles.clear();
+
         int maxValue = 0;
 
         for (Map.Entry<Integer, Integer> entry : this.propabilityRoom.entrySet()){
@@ -1153,27 +1181,6 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         if (prob > 50.0 && connection != null) {
             connection.send(room + "");
         }
-
-        /*if (prob > 75.0 && (room == 16 || room == 17)) {
-            this.switchFloor();
-        }*/
-
-        List<Integer> validLocations = new ArrayList<Integer>();
-
-        for (int i = 0; i < this.Particles.size(); i++) {
-            if (this.collidedParticles.contains(i)) {
-                continue;
-            }
-            validLocations.add(i);
-        }
-
-        for (int idx : this.collidedParticles) {
-            int validIdx = ThreadLocalRandom.current().nextInt(0, validLocations.size());
-            int particleIdx = validLocations.get(validIdx);
-            int[] particle = this.Particles.get(particleIdx);
-            this.Particles.set(idx, particle.clone());
-        }
-        this.collidedParticles.clear();
 
     }
 
