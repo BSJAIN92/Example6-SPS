@@ -944,6 +944,17 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
             case R.id.buttonLocate:{
                 this.locate();
+                buttonLocate.setEnabled(false);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        buttonLocate.setEnabled(true);
+                        //MainActivity.this.waiting = true;
+                        //MainActivity.this.feedback.setText("Bayesian: \nWaiting for refresh!");
+                    }
+                }, 5000);
+
                 break;
             }
         }
@@ -960,6 +971,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         // Start a wifi scan.
         wifiManager.startScan();
+
 
         // Store results in a list.
         List<ScanResult> scanResults = wifiManager.getScanResults();
@@ -1119,7 +1131,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 int room = Integer.parseInt(FinalWinner.substring(1, 3));
             }
             */
-            currentRoom = Integer.parseInt(FinalWinner.substring(2, FinalWinner.length()));
+            currentRoom = Integer.parseInt(FinalWinner.substring(1, FinalWinner.length()));
 
         }
 
@@ -1127,6 +1139,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         boolean floor3 = bayesianRoom <= 16 && currentRoom >=17;
         boolean floor4 = bayesianRoom >= 17 && currentRoom <=16;
         if (bayesianRoom != 0 && (floor3 || floor4)) {
+            floor3 = false;
+            floor4 = false;
             switchFloor();
         }
 
