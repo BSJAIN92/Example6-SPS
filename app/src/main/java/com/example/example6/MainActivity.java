@@ -92,7 +92,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private BigDecimal maxProb = new BigDecimal(1.0000);
     private BigDecimal Total = new BigDecimal(String.valueOf(TotalCells.multiply(TotalDirections)));
     //private BigDecimal InitialProbability = BigDecimal.valueOf(1.0000).divide(Total, RoundingMode.HALF_UP);
-    private BigDecimal InitialProbability = new BigDecimal(0.01315789473);
+    private BigDecimal InitialProbability = new BigDecimal(0.05263157894);
 
     // offsets
 
@@ -1080,18 +1080,22 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 FinalWinner = f.getKey();
             }
         }
+        int currentRoom = 0;
         if (FinalWinner != "No Cell") {
-            if (FinalWinner.length() == 4){
+            /*
+            if (FinalWinner.length() == 3){
                 int room = Integer.parseInt(FinalWinner.substring(1, 2));
             }else{
-                int room = Integer.parseInt(FinalWinner.substring(2, 3));
+                int room = Integer.parseInt(FinalWinner.substring(1, 3));
             }
+            */
+            currentRoom = Integer.parseInt(FinalWinner.substring(2, FinalWinner.length()));
 
         }
 
         // detect floor change
-        boolean floor3 = bayesianRoom <= 16 && room >=17;
-        boolean floor4 = bayesianRoom >= 17 && room <=16;
+        boolean floor3 = bayesianRoom <= 16 && currentRoom >=17;
+        boolean floor4 = bayesianRoom >= 17 && currentRoom <=16;
         if (bayesianRoom != 0 && (floor3 || floor4)) {
             switchFloor();
         }
