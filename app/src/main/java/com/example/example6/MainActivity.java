@@ -255,7 +255,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 connection = webSocket;
                 connection.setStringCallback(new StringCallback() {
                     public void onStringAvailable(String s) {
-                        MainActivity.this.othersRoom = Integer.parseInt(s);
+                        MainActivity.this.othersRoom = MainActivity.this.findRoomIdx(Integer.parseInt(s));
                     }
                 });
             }
@@ -637,7 +637,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         }
 
         // draw other participant
-        int othersIdx = findRoomIdx(othersRoom);
+        int othersIdx = othersRoom;
         if (othersIdx == -1) {
             return;
         }
