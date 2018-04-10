@@ -144,7 +144,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private int countedSteps = 0;
     private int ourSteps = 0;
     private int room = 0;
-    private int othersRoom = 0;
+    private int othersRoom = -1;
     private String probability = "";
 
     private int mLastAccuracy;
@@ -714,6 +714,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     public void setRoomParticlesFloor4(){
         this.RoomParticles = new ArrayList<int[]>();
 
+        /*
         this.RoomParticles.add(new int[] {1,229,0,520,440,690});
         this.RoomParticles.add(new int[] {2,309,0,690,440,920});
         this.RoomParticles.add(new int[] {3,337,440,690,920,920});
@@ -732,6 +733,29 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {15,231,0,0,580,130,82,440,130,580,320});
 
         this.RoomParticles.add(new int[] {16,279,1010,270,1240,690});
+        */
+
+        this.RoomParticles.add(new int[] {1,100,0,520,440,690});
+        this.RoomParticles.add(new int[] {2,100,0,690,440,920});
+        this.RoomParticles.add(new int[] {3,100,440,690,920,920});
+        this.RoomParticles.add(new int[] {4,100,920,690,1260,920});
+        this.RoomParticles.add(new int[] {5,100,920,920,1260,1440});
+        this.RoomParticles.add(new int[] {6,100,1260,690,1820,920});
+        this.RoomParticles.add(new int[] {7,100,1260,920,1600,1440});
+        this.RoomParticles.add(new int[] {8,100,1820,850,2170,920,100,1830,920,2170,1230});
+
+        this.RoomParticles.add(new int[] {9,100,2170,850,2600,1080});
+        this.RoomParticles.add(new int[] {10,100,1820,500,2170,850});
+        this.RoomParticles.add(new int[] {11,100,1820,130,1950,500});
+        this.RoomParticles.add(new int[] {12,100,1380,0,1950,130});
+        this.RoomParticles.add(new int[] {13,100,1010,0,1380,270});
+        this.RoomParticles.add(new int[] {14,100,580,0,1010,270});
+        this.RoomParticles.add(new int[] {15,100,0,0,580,130,100,440,130,580,320});
+
+        this.RoomParticles.add(new int[] {16,100,1010,270,1240,690});
+
+        this.totalParticles = 1800;
+
 
     }
 
@@ -739,6 +763,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         this.RoomParticles = new ArrayList<int[]>();
 
+        /*
         this.RoomParticles.add(new int[] {18,176,0,360,180,690});
         this.RoomParticles.add(new int[] {102,123,0,690,180,920});
         this.RoomParticles.add(new int[] {103,504,180,690,920,920});
@@ -757,6 +782,28 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {151,261,800,270,1010,690});
         this.RoomParticles.add(new int[] {15,216,440,0,580,520});
         this.RoomParticles.add(new int[] {17,286,1010,270,1240,690});
+        */
+        this.RoomParticles.add(new int[] {18,100,0,360,180,690});
+        this.RoomParticles.add(new int[] {102,100,0,690,180,920});
+        this.RoomParticles.add(new int[] {103,100,180,690,920,920});
+        this.RoomParticles.add(new int[] {104,100,920,690,1260,920});
+
+        this.RoomParticles.add(new int[] {106,100,1260,690,1820,920});
+        this.RoomParticles.add(new int[] {152,100,1240,270,1380,550});
+        this.RoomParticles.add(new int[] {108,100,1820,850,2170,920,100,1830,920,2170,1230});
+
+        this.RoomParticles.add(new int[] {19,100,1950,0,2600,500});
+        this.RoomParticles.add(new int[] {110,100,1820,500,2170,850});
+        this.RoomParticles.add(new int[] {111,100,1820,130,1950,500});
+        this.RoomParticles.add(new int[] {112,100,1380,0,1950,130});
+        this.RoomParticles.add(new int[] {113,100,1010,0,1380,270});
+        this.RoomParticles.add(new int[] {114,100,580,0,1010,270});
+        this.RoomParticles.add(new int[] {151,100,800,270,1010,690});
+        this.RoomParticles.add(new int[] {15,100,440,0,580,520});
+        this.RoomParticles.add(new int[] {17,100,1010,270,1240,690});
+
+        this.totalParticles = 1700;
+
 
 
     }
