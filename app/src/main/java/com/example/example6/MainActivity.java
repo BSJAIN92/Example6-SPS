@@ -187,12 +187,12 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         stepDetection = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        linearSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        //linearSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         sensorManager.registerListener(this, rotationSensor, sensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, stepDetection, sensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, stepCounter, sensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, accSensor, sensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, linearSensor, sensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this, linearSensor, sensorManager.SENSOR_DELAY_NORMAL);
 
         lastTime =  System.currentTimeMillis();
 
@@ -359,7 +359,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         wallsBounds.add(new int[]{1600,920,1830,925});
         wallsBounds.add(new int[]{0,920,920,925});
         wallsBounds.add(new int[]{0,1440,2600,1445});
-        wallsBounds.add(new int[]{440,690,1010,695});
+        wallsBounds.add(new int[]{440,690,1015,695});
         wallsBounds.add(new int[]{1240,690,1820,695});
         wallsBounds.add(new int[]{2170,850,2600,855});
         wallsBounds.add(new int[]{2170,1080,2600,1085});
@@ -398,7 +398,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         wallsBounds.add(new int[]{0,920,920,925});
         wallsBounds.add(new int[]{0,1440,2600,1445});
         wallsBounds.add(new int[]{180,690,440,695});
-        wallsBounds.add(new int[]{440,690,800,695});
+        wallsBounds.add(new int[]{440,690,805,695});
 
         wallsBounds.add(new int[]{1240,690,1820,695});
         wallsBounds.add(new int[]{1380,130,1820,135});
@@ -600,7 +600,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         double updatedMag = max -  mu;
         //System.out.println(updatedMag);
 
-        if (updatedMag > 2.5 && updatedMag < 5) {
+        if (updatedMag > 2.5 && updatedMag < 6.75) {
             return true;
         }
         return false;
@@ -714,7 +714,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     public void setRoomParticlesFloor4(){
         this.RoomParticles = new ArrayList<int[]>();
 
-        /*
+
         this.RoomParticles.add(new int[] {1,229,0,520,440,690});
         this.RoomParticles.add(new int[] {2,309,0,690,440,920});
         this.RoomParticles.add(new int[] {3,337,440,690,920,920});
@@ -733,8 +733,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {15,231,0,0,580,130,82,440,130,580,320});
 
         this.RoomParticles.add(new int[] {16,279,1010,270,1240,690});
-        */
 
+        /*
         this.RoomParticles.add(new int[] {1,100,0,520,440,690});
         this.RoomParticles.add(new int[] {2,100,0,690,440,920});
         this.RoomParticles.add(new int[] {3,100,440,690,920,920});
@@ -755,6 +755,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {16,100,1010,270,1240,690});
 
         this.totalParticles = 1800;
+        */
 
 
     }
@@ -763,7 +764,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         this.RoomParticles = new ArrayList<int[]>();
 
-        /*
+
         this.RoomParticles.add(new int[] {18,176,0,360,180,690});
         this.RoomParticles.add(new int[] {102,123,0,690,180,920});
         this.RoomParticles.add(new int[] {103,504,180,690,920,920});
@@ -782,7 +783,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {151,261,800,270,1010,690});
         this.RoomParticles.add(new int[] {15,216,440,0,580,520});
         this.RoomParticles.add(new int[] {17,286,1010,270,1240,690});
-        */
+
+        /*
         this.RoomParticles.add(new int[] {18,100,0,360,180,690});
         this.RoomParticles.add(new int[] {102,100,0,690,180,920});
         this.RoomParticles.add(new int[] {103,100,180,690,920,920});
@@ -803,6 +805,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.RoomParticles.add(new int[] {17,100,1010,270,1240,690});
 
         this.totalParticles = 1700;
+        */
 
 
 
@@ -1365,7 +1368,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
         @Override
         protected void onPostExecute(String result) {
-            feedback.setText("Bayesian Result" + result);
+            feedback.setText("Bayesian Result " + result);
 
         }
     }
