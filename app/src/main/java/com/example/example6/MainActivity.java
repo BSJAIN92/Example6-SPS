@@ -249,7 +249,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             wall.draw(canvas);
         }
 
-        AsyncHttpClient.getDefaultInstance().websocket("http://dry-chamber-74956.herokuapp.com", null, new WebSocketConnectCallback() {
+            AsyncHttpClient.getDefaultInstance().websocket("http://dry-chamber-74956.herokuapp.com", null, new WebSocketConnectCallback() {
             @Override
             public void onCompleted(Exception ex, WebSocket webSocket) {
                 connection = webSocket;
@@ -637,11 +637,11 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         }
 
         // draw other participant
-        //this.RoomParticles.add(new int[] {8,75,1820,850,2170,920,322,1830,920,2170,1230});
-        if (othersRoom == 0) {
+        int othersIdx = findRoomIdx(othersRoom);
+        if (othersIdx == -1) {
             return;
         }
-        int[] other = this.RoomParticles.get(othersRoom - 1);
+        int[] other = this.RoomParticles.get(othersIdx);
         // 8,75,1820,850,2170,920,322
         // 0, 1,   2,  3,   4,  5
         int x =  other[2] + ((other[4] - other[2]) / 2);
@@ -1217,11 +1217,9 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         double prob = (double) maxValue / this.Particles.size() * 100;
         probability = df.format(prob);
         textView.setText("Particle Filter: \nRoom " +room + " with " + probability + "% of all Particles");
-
         if (prob > 50.0 && connection != null) {
             connection.send(room + "");
         }
-
     }
 
     private void calculateProbability() {
