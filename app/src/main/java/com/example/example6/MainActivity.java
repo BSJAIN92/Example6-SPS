@@ -1115,7 +1115,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
             }
         }
         int currentRoom = 0;
-        if (FinalWinner != "No Cell") {
+        if (!FinalWinner.equals("No Cell")) {
             /*
             if (FinalWinner.length() == 3){
                 int room = Integer.parseInt(FinalWinner.substring(1, 2));
@@ -1128,8 +1128,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         }
 
         // detect floor change
-        boolean floor3 = bayesianRoom == 16 && currentRoom ==17;
-        boolean floor4 = bayesianRoom == 17 && currentRoom ==16;
+        boolean floor3 = bayesianRoom <= 16 && currentRoom >=17;
+        boolean floor4 = bayesianRoom >= 17 && currentRoom <=16;
         if (bayesianRoom != 0 && (floor3 || floor4)) {
             floor3 = false;
             floor4 = false;
@@ -1137,7 +1137,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         }
 
         this.feedback.setText("Bayesian: \nLocated Cell: " + FinalWinner);
-        bayesianRoom =room;
+        bayesianRoom = currentRoom;
 
         for (Map.Entry<String, BigDecimal> f: finalProbability.entrySet()){
             finalProbability.put(f.getKey(), InitialProbability);
