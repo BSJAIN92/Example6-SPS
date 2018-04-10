@@ -551,8 +551,25 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         this.locate();
 
         if (this.Particles.size() == this.collidedParticles.size()) {
-            Toast.makeText(getApplication(), "All particles collided :(", Toast.LENGTH_SHORT).show();
-            return;
+            int boundary = 15;
+            collidedParticles.clear();
+            this.resetParticles(0.1f);
+            int remain = totalParticles - Particles.size();
+            int[] spawnRoom = RoomParticles.get(this.findRoomIdx(room));
+            for (int particles = 0; particles < remain; particles++){
+
+                int x1, x2, y1, y2, Px, Py;
+                y1 = spawnRoom[3] + boundary;
+                x1 = spawnRoom[2] + boundary;
+                x2 = spawnRoom[4] - boundary;
+                y2 = spawnRoom[5] - boundary;
+
+                Px = ThreadLocalRandom.current().nextInt(x1, x2+1);
+                Py = ThreadLocalRandom.current().nextInt(y1, y2+1);
+
+                this.Particles.add(new int[] {Px, Py, 0});
+            }
+
         }
 
         this.calculateProbability();
@@ -645,9 +662,20 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         drawable.draw(canvas);
     }
 
+    public int findRoomIdx(int room) {
+        int idx = -1;
+        for(int i = 0; i < RoomParticles.size(); i++) {
+            int[] roomStuff = RoomParticles.get(i);
+            if (roomStuff[0] == room) {
+                idx = i;
+                break;
+            }
+        }
+        return idx;
+    }
 
-    public void resetParticles(){
 
+    public void resetParticles(float percentage){
         this.Particles = new ArrayList<int[]>();
 
         int boundary = 10;
@@ -655,7 +683,8 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         for (int roomIdx = 0; roomIdx < this.RoomParticles.size(); roomIdx++){
             int[] room = this.RoomParticles.get(roomIdx);
 
-            for (int particles = 0; particles < room[1]; particles++){
+            int spawn = (int) (percentage * room[1]);
+            for (int particles = 0; particles < spawn; particles++){
 
                 int x1, x2, y1, y2, Px, Py;
                 y1 = room[3] + boundary;
@@ -684,12 +713,13 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                 }
             }
         }
+
+        if(percentage == 1.0f){
+            totalParticles = Particles.size();
+        }
     }
 
     public void setRoomParticlesFloor4(){
-
-        this.totalParticles = 108;
-
         this.RoomParticles = new ArrayList<int[]>();
 
         this.RoomParticles.add(new int[] {1,229,0,520,440,690});
@@ -859,7 +889,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
                     wall.draw(canvas);
                 }
                 this.collidedParticles.clear();
-                this.resetParticles();
+                this.resetParticles(1.0f);
 
                 this.drawParticles(canvas);
                 break;
