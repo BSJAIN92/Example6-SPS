@@ -435,35 +435,24 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
         int[] roomCoordinates;
         int room;
 
+        int spawn1 = totalParticles/2;
+        int spawn2 = totalParticles - spawn1;
+
         canvas.drawColor(Color.WHITE);
+        Particles.clear();
         if (floor3) {
             floor3 = false;
             this.setRoomParticlesFloor4();
-            roomCoordinates = new int[] {16,279,1010,270,1240,690};
-            room = 16;
             this.setWall4();
+            this.addToRoom(16, spawn1);
+            this.addToRoom(4, spawn2);
         } else {
             floor3 = true;
             this.setRoomParticlesFloor3();
-            roomCoordinates = new int[] {17,286,1010,270,1240,690};
-            room = 17;
             this.setWalls3();
+            this.addToRoom(17, spawn1);
+            this.addToRoom(104, spawn2);
         }
-
-        int x1, x2, y1, y2, Px, Py;
-        int boundary = 4;
-        y1 = roomCoordinates[3] + boundary;
-        x1 = roomCoordinates[2] + boundary;
-        x2 = roomCoordinates[4] - boundary;
-        y2 = roomCoordinates[5] - boundary;
-
-        for(int particleIdx = 0; particleIdx < Particles.size(); particleIdx++) {
-            Px = ThreadLocalRandom.current().nextInt(x1, x2+1);
-            Py = ThreadLocalRandom.current().nextInt(y1, y2+1);
-            int[] particle = new int[] {Px, Py, room};
-            Particles.set(particleIdx, particle);
-        }
-
         walls.clear();
 
         for(int[] wallBound : wallsBounds) {
@@ -545,31 +534,34 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
 
     }
 
+    private void addToRoom(int roomNr, int amount) {
+        int boundary = 15;
+        int[] spawnRoom = RoomParticles.get(this.findRoomIdx(roomNr));
+        for (int particles = 0; particles < amount; particles++){
+
+            int x1, x2, y1, y2, Px, Py;
+            y1 = spawnRoom[3] + boundary;
+            x1 = spawnRoom[2] + boundary;
+            x2 = spawnRoom[4] - boundary;
+            y2 = spawnRoom[5] - boundary;
+
+            Px = ThreadLocalRandom.current().nextInt(x1, x2+1);
+            Py = ThreadLocalRandom.current().nextInt(y1, y2+1);
+
+            this.Particles.add(new int[] {Px, Py, 0});
+        }
+    }
+
     private void recalc() {
         this.updateParticles();
 
         this.locate();
 
         if (this.Particles.size() == this.collidedParticles.size()) {
-            int boundary = 15;
             collidedParticles.clear();
             this.resetParticles(0.1f);
             int remain = totalParticles - Particles.size();
-            int[] spawnRoom = RoomParticles.get(this.findRoomIdx(room));
-            for (int particles = 0; particles < remain; particles++){
-
-                int x1, x2, y1, y2, Px, Py;
-                y1 = spawnRoom[3] + boundary;
-                x1 = spawnRoom[2] + boundary;
-                x2 = spawnRoom[4] - boundary;
-                y2 = spawnRoom[5] - boundary;
-
-                Px = ThreadLocalRandom.current().nextInt(x1, x2+1);
-                Py = ThreadLocalRandom.current().nextInt(y1, y2+1);
-
-                this.Particles.add(new int[] {Px, Py, 0});
-            }
-
+            this.addToRoom(room, remain);
         }
 
         this.calculateProbability();
