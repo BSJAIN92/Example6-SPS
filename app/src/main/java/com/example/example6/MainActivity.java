@@ -79,7 +79,7 @@ public class MainActivity extends Activity implements SensorEventListener, OnCli
     private boolean marco = false;
     private boolean floor3 = false;
     private double[] strides = new double[]{175f * 0.415, 182f *  0.415};
-    private double stride = strides[0];
+    private double stride = strides[1];
     private double latestAngle = 0.0;
 
     private List<String> changeFlag;
